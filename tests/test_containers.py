@@ -5,10 +5,12 @@ import numpy as np
 import torch
 from parameterized import parameterized
 from torch.nn import Linear as nnLinear
+from torch.nn import ReLU as nnReLU
 from torch.nn import Sequential as nnSequential
 
 from csnn import Linear as csLinear
 from csnn import Module as csModule
+from csnn import ReLU as csReLU
 from csnn import Sequential as csSequential
 
 
@@ -45,8 +47,15 @@ class TestSequential(unittest.TestCase):
         )
 
     def test_with_linear(self):
-        Ntorch = nnSequential(nnLinear(10, 5, dtype=float), nnLinear(5, 1, dtype=float))
-        Ncs = csSequential((csLinear("SX", 10, 5), csLinear("SX", 5, 1)))
+        Ntorch = nnSequential(
+            nnLinear(10, 5, dtype=float),
+            nnReLU(),
+            nnLinear(5, 1, dtype=float),
+            nnReLU(),
+        )
+        Ncs = csSequential(
+            (csLinear("SX", 10, 5), csReLU("SX"), csLinear("SX", 5, 1), csReLU("SX"))
+        )
         in_num = np.random.randn(3, 10)
         out_exp = torch_to_numpy(Ntorch(torch.from_numpy(in_num)))
         in_sym = Ncs.sym_type.sym("x", 3, 10)
