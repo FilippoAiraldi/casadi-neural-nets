@@ -6,6 +6,7 @@ import casadi as cs
 import numpy as np
 import numpy.typing as npt
 
+T = TypeVar("T", bound="Module")
 SymType = TypeVar("SymType", cs.SX, cs.MX)
 
 
@@ -66,6 +67,16 @@ class Module(ABC, Generic[SymType]):
             raise KeyError(f"Child module {name} already exists.")
         self._modules[name] = module
 
+    def children(self) -> Iterator[Tuple[str, "Module"]]:
+        """Returns an iterator over immediate children modules.
+
+        Yields
+        ------
+        Iterator of tuple[str, Module]
+            An iterator over tuples of module's names and instances.
+        """
+        yield from self._modules.items()
+
     def sym_parameters(
         self, recurse: bool = True, prefix: str = ""
     ) -> Iterator[Tuple[str, SymType]]:
@@ -90,7 +101,7 @@ class Module(ABC, Generic[SymType]):
         for name, par in self._sym_parameters.items():
             yield (prefix + name, par)
         if recurse:
-            for name, module in self._modules.items():
+            for name, module in self.children():
                 yield from module.sym_parameters(recurse=True, prefix=f"{prefix}{name}")
 
     def num_parameters(
@@ -117,7 +128,7 @@ class Module(ABC, Generic[SymType]):
         for name, par in self._num_parameters.items():
             yield (prefix + name, par)
         if recurse:
-            for name, module in self._modules.items():
+            for name, module in self.children():
                 yield from module.num_parameters(recurse=True, prefix=f"{prefix}{name}")
 
     @abstractmethod
@@ -158,5 +169,39 @@ class Module(ABC, Generic[SymType]):
     def _(self, x: np.ndarray) -> np.ndarray:
         return self.forward_num(x)
 
+    def train(self: T, mode: bool = True) -> T:
+        """Sets the module in training mode.
 
-# TODO: eval and train
+        This has any effect only on certain modules. See documentations of particular
+        modules for details of their behaviors in training/evaluation mode, if they are
+        affected, e.g. `Dropout`, `BatchNorm`, etc.
+
+        Parameters
+        ----------
+        mode : bool, optional
+            Whether to set training mode (`True`) or evaluation mode (`False`). Defaults
+            to `True`.
+
+        Returns
+        -------
+        A reference to itself.
+        """
+        self.training = mode
+        for _, module in self.children():
+            module.train(mode)
+        return self
+
+    def eval(self: T) -> T:
+        """Sets the module in evaluation mode.
+
+        This has any effect only on certain modules. See documentations of particular
+        modules for details of their behaviors in training/evaluation mode, if they are
+        affected, e.g. `Dropout`, `BatchNorm`, etc.
+
+        This is equivalent to `self.train(False)`.
+
+        Returns
+        -------
+        A reference to itself.
+        """
+        return self.train(False)
