@@ -1,6 +1,16 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from typing import Any, Dict, Generic, Iterator, Literal, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Dict,
+    Generic,
+    Iterator,
+    Literal,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import casadi as cs
 
@@ -24,13 +34,19 @@ class Module(ABC, Generic[SymType]):
     class."""
 
     def __init__(self, sym_type: Literal["SX", "MX"]) -> None:
-        """Initializes the module."""
+        """Initializes the module.
+
+        Parameters
+        ----------
+        sym_type : {"SX" or "MX"}
+            Type of casadi symbolical variable.
+        """
         self.training: bool = False
         self.sym_type: Union[cs.SX, cs.MX] = getattr(cs, sym_type)
-        self._parameters: Dict[str, SymType] = OrderedDict()
+        self._parameters: Dict[str, Optional[SymType]] = OrderedDict()
         self._modules: Dict[str, "Module"] = OrderedDict()
 
-    def register_parameter(self, name: str, sym: SymType) -> None:
+    def register_parameter(self, name: str, sym: Optional[SymType]) -> None:
         """Adds a parameter to the module.
 
         Parameters
