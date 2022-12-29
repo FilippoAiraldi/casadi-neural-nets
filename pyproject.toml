@@ -21,7 +21,8 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Mathematics"
 ]
 dependencies = [
-    "casadi >= 3.5.*"
+    "numpy >= 1.21.6",
+    "casadi >= 3.5.*",
 ]
 
 [project.urls]
