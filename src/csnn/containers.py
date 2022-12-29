@@ -40,14 +40,14 @@ class Sequential(Module[SymType]):
             self.add_module(name, module)
 
     def forward_sym(self, input: SymType) -> SymType:
-        for module in self:
+        for _, module in self:
             input = module.forward_sym(input)
         return input
 
     def forward_num(self, input: npt.NDArray[np.double]) -> npt.NDArray[np.double]:
-        for module in self:
+        for _, module in self:
             input = module.forward_num(input)
         return input
 
-    def __iter__(self) -> Iterator[Module[SymType]]:
-        return iter(self._modules.values())
+    def __iter__(self) -> Iterator[Tuple[str, Module[SymType]]]:
+        return iter(self._modules.items())

@@ -84,6 +84,10 @@ class TestModule(unittest.TestCase):
         self.assertEqual(sum(n == "p1" for n, _ in L2), 1)
         self.assertEqual(sum(n == "child.p2" for n, _ in L2), 1)
 
+    def test_repr(self):
+        module = DummyModule(self.sym_type)
+        self.assertIn(module.__class__.__name__, repr(module))
+
 
 if __name__ == "__main__":
     unittest.main()
