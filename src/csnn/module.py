@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import singledispatchmethod
-from typing import Dict, Generic, Iterator, Optional, Tuple, TypeVar
+from typing import Any, Dict, Generic, Iterator, Optional, Tuple, TypeVar
 
 import casadi as cs
 import numpy as np
@@ -161,14 +161,6 @@ class Module(ABC, Generic[SymType]):
             The numerical output of the net.
         """
 
-    @singledispatchmethod
-    def __call__(self, x: SymType) -> SymType:
-        return self.forward_sym(x)
-
-    @__call__.register  # type: ignore
-    def _(self, x: np.ndarray) -> np.ndarray:
-        return self.forward_num(x)
-
     def train(self: T, mode: bool = True) -> T:
         """Sets the module in training mode.
 
@@ -205,3 +197,25 @@ class Module(ABC, Generic[SymType]):
         A reference to itself.
         """
         return self.train(False)
+
+    @singledispatchmethod
+    def __call__(self, x: SymType) -> SymType:
+        return self.forward_sym(x)
+
+    @__call__.register  # type: ignore
+    def _(self, x: np.ndarray) -> np.ndarray:
+        return self.forward_num(x)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if isinstance(value, Module):
+            self.add_module(name, value)
+        elif isinstance(value, (cs.SX, cs.MX)):
+            self.register_parameter(name, value)
+        elif (
+            isinstance(value, tuple)
+            and len(value) == 2
+            and isinstance(value[0], (cs.SX, cs.MX))
+            and isinstance(value[1], np.ndarray)
+        ):
+            self.register_parameter(name, *value)
+        return super().__setattr__(name, value)

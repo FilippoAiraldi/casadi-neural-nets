@@ -34,9 +34,18 @@ class TestModule(unittest.TestCase):
     def test_register_parameter__instantiates_empty_numerical_array(self):
         module = DummyModule()
         shape = (2, 3)
-        module.register_parameter("ciao", cs.SX.zeros(*shape))
+        module.ciao = cs.SX.zeros(*shape)
         self.assertIn("ciao", module._num_parameters)
         self.assertIsInstance(module._num_parameters["ciao"], np.ndarray)
+        self.assertEqual(module._num_parameters["ciao"].shape, shape)
+
+    def test_register_parameter__sets_also_numerical_array(self):
+        module = DummyModule()
+        shape = (2, 3)
+        array = np.random.rand(*shape)
+        module.ciao = cs.SX.zeros(*shape), array
+        self.assertIn("ciao", module._num_parameters)
+        np.testing.assert_array_equal(module._num_parameters["ciao"], array)
         self.assertEqual(module._num_parameters["ciao"].shape, shape)
 
     def test_register_parameter__raises__with_invalid_shape(self):
@@ -52,7 +61,7 @@ class TestModule(unittest.TestCase):
 
     def test_add_module__adds_module_correctly(self):
         module = DummyModule()
-        module.add_module("ciao", DummyModule())
+        module.ciao = DummyModule()
         self.assertIn("ciao", module._modules)
 
     def test_sym_num_parameters__returns_all_parameters(self):
@@ -63,7 +72,7 @@ class TestModule(unittest.TestCase):
         child_module = DummyModule()
         p2 = cs.SX.zeros(2, 4)
         child_module.register_parameter("p2", p2)
-        module.add_module("child", child_module)
+        module.child = child_module
 
         L1 = list(module.sym_parameters())
         L2 = list(module.num_parameters())
