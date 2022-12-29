@@ -1,8 +1,6 @@
 from typing import Dict, Iterable, Iterator, Tuple, TypeVar, Union
 
 import casadi as cs
-import numpy as np
-import numpy.typing as npt
 
 from csnn.module import Module
 
@@ -39,14 +37,9 @@ class Sequential(Module[SymType]):
         for name, module in names_and_modules:
             self.add_module(name, module)
 
-    def forward_sym(self, input: SymType) -> SymType:
+    def forward(self, input: SymType) -> SymType:
         for _, module in self:
-            input = module.forward_sym(input)
-        return input
-
-    def forward_num(self, input: npt.NDArray[np.double]) -> npt.NDArray[np.double]:
-        for _, module in self:
-            input = module.forward_num(input)
+            input = module.forward(input)
         return input
 
     def __iter__(self) -> Iterator[Tuple[str, Module[SymType]]]:
