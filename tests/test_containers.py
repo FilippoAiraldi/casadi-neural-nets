@@ -1,5 +1,4 @@
 import unittest
-from typing import TypeVar
 
 import casadi as cs
 import numpy as np
@@ -8,15 +7,13 @@ from parameterized import parameterized
 
 from csnn import Module, Sequential
 
-SymType = TypeVar("SymType", cs.SX, cs.MX)
 
-
-class DummyModule(Module):
+class DummyModule(Module[cs.SX]):
     def __init__(self, name: str) -> None:
-        super().__init__()
+        super().__init__("SX")
         self.p = cs.SX.sym(f"p_{name}", 1, 1), np.random.randn()
 
-    def forward_sym(self, input: SymType) -> SymType:
+    def forward_sym(self, input: cs.SX) -> cs.SX:
         return input + self.p[0]
 
     def forward_num(self, input: npt.NDArray[np.double]) -> npt.NDArray[np.double]:

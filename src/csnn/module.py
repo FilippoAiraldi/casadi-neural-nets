@@ -1,7 +1,17 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from functools import singledispatchmethod
-from typing import Any, Dict, Generic, Iterator, Optional, Tuple, TypeVar
+from typing import (
+    Any,
+    Dict,
+    Generic,
+    Iterator,
+    Literal,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import casadi as cs
 import numpy as np
@@ -26,9 +36,10 @@ class Module(ABC, Generic[SymType]):
     """Base class for all neural network modules. Your models should also subclass this
     class."""
 
-    def __init__(self) -> None:
+    def __init__(self, sym_type: Literal["SX", "MX"]) -> None:
         """Initializes the module."""
         self.training: bool = False
+        self.sym_type: Union[cs.SX, cs.MX] = getattr(cs, sym_type)
         self._sym_parameters: Dict[str, SymType] = OrderedDict()
         self._num_parameters: Dict[str, npt.NDArray[np.double]] = OrderedDict()
         self._modules: Dict[str, "Module"] = OrderedDict()
