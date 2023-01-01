@@ -1,5 +1,3 @@
-from typing import Literal
-
 import csnn.functional as F
 from csnn.module import Module, SymType
 
@@ -10,7 +8,6 @@ class Linear(Module[SymType]):
 
     def __init__(
         self,
-        sym_type: Literal["SX", "MX"],
         in_features: int,
         out_features: int,
         bias: bool = True,
@@ -19,8 +16,6 @@ class Linear(Module[SymType]):
 
         Parameters
         ----------
-        sym_type : {"SX" or "MX"}
-            Type of casadi symbolical variable.
         in_features : int
             Size of each input sample
         out_features : int
@@ -29,7 +24,7 @@ class Linear(Module[SymType]):
             If set to `False`, the layer will not learn an additive bias. Defaults to
             `True`.
         """
-        super().__init__(sym_type)
+        super().__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.weight = self.sym_type.sym("A", out_features, in_features)

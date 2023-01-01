@@ -7,6 +7,7 @@ from parameterized import parameterized_class
 from torch.nn import ReLU as nnReLU
 
 from csnn import ReLU as csReLU
+from csnn import set_sym_type
 
 
 def torch_to_numpy(x: torch.Tensor) -> np.ndarray:
@@ -16,8 +17,9 @@ def torch_to_numpy(x: torch.Tensor) -> np.ndarray:
 @parameterized_class("sym_type", [("SX",), ("MX",)])
 class TestActivation(unittest.TestCase):
     def test_computes_right_value(self):
+        set_sym_type(self.sym_type)
         features = 5, 10
-        Lcs = csReLU(self.sym_type)
+        Lcs = csReLU()
         Lnn = nnReLU()
         in_num = np.random.randn(*features)
         out_exp = torch_to_numpy(Lnn(torch.from_numpy(in_num)))

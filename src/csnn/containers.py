@@ -25,17 +25,13 @@ class Sequential(Module[SymType]):
         modules : dict[str, Module] or iterable of Module
             A dict of names-modules, or an iterable or modules.
         """
-        names_and_modules: Iterator[Tuple[str, Module[SymType]]] = (
-            iter(modules.items())
-            if isinstance(modules, dict)
-            else map(lambda o: (str(o[0]), o[1]), enumerate(modules))
-        )
-        first_name, first_module = next(names_and_modules)
-        super().__init__(first_module.sym_type.__name__)
-
-        self.add_module(first_name, first_module)
-        for name, module in names_and_modules:
-            self.add_module(name, module)
+        super().__init__()
+        if isinstance(modules, dict):
+            for name, module in modules.items():
+                self.add_module(name, module)
+        else:
+            for i, module in enumerate(modules):
+                self.add_module(str(i), module)
 
     def forward(self, input: SymType) -> SymType:
         for _, module in self:

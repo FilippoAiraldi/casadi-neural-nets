@@ -20,7 +20,7 @@ def torch_to_numpy(x: torch.Tensor) -> np.ndarray:
 
 class DummyModule(csModule[cs.SX]):
     def __init__(self, name: str) -> None:
-        super().__init__("SX")
+        super().__init__()
         self.p = cs.SX.sym(f"p_{name}", 1, 1)
 
     def forward(self, input: cs.SX) -> cs.SX:
@@ -53,9 +53,7 @@ class TestSequential(unittest.TestCase):
             nnLinear(5, 1, dtype=float),
             nnReLU(),
         )
-        Ncs = csSequential(
-            (csLinear("SX", 10, 5), csReLU("SX"), csLinear("SX", 5, 1), csReLU("SX"))
-        )
+        Ncs = csSequential((csLinear(10, 5), csReLU(), csLinear(5, 1), csReLU()))
         in_num = np.random.randn(3, 10)
         out_exp = torch_to_numpy(Ntorch(torch.from_numpy(in_num)))
         in_sym = Ncs.sym_type.sym("x", 3, 10)

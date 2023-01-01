@@ -7,6 +7,7 @@ from parameterized import parameterized, parameterized_class
 from torch.nn import Linear as nnLinear
 
 from csnn import Linear as csLinear
+from csnn import set_sym_type
 
 
 def torch_to_numpy(x: torch.Tensor) -> np.ndarray:
@@ -17,8 +18,9 @@ def torch_to_numpy(x: torch.Tensor) -> np.ndarray:
 class TestSequential(unittest.TestCase):
     @parameterized.expand([(True,), (False,)])
     def test_computes_right_value(self, bias: bool):
+        set_sym_type(self.sym_type)
         features = 5, 10
-        Lcs = csLinear(self.sym_type, *features, bias=bias)
+        Lcs = csLinear(*features, bias=bias)
         Ltorch = nnLinear(*features, bias=bias, dtype=float)
 
         N = 12
@@ -34,7 +36,8 @@ class TestSequential(unittest.TestCase):
         np.testing.assert_allclose(cs.evalf(out_act), out_exp)
 
     def test_repr(self):
-        L = csLinear(self.sym_type, 5, 10)
+        set_sym_type(self.sym_type)
+        L = csLinear(5, 10)
         self.assertIn(csLinear.__name__, repr(L))
 
 

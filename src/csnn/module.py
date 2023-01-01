@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from collections import OrderedDict
 from typing import (
     Any,
+    ClassVar,
     Dict,
     Generic,
     Iterator,
-    Literal,
     Optional,
     Tuple,
+    Type,
     TypeVar,
     Union,
 )
@@ -33,16 +34,11 @@ class Module(ABC, Generic[SymType]):
     """Base class for all neural network modules. Your models should also subclass this
     class."""
 
-    def __init__(self, sym_type: Literal["SX", "MX"]) -> None:
-        """Initializes the module.
+    sym_type: ClassVar[Union[Type[cs.SX], Type[cs.MX]]] = cs.MX
 
-        Parameters
-        ----------
-        sym_type : {"SX" or "MX"}
-            Type of casadi symbolical variable.
-        """
+    def __init__(self) -> None:
+        """Initializes the module."""
         self.training: bool = False
-        self.sym_type: Union[cs.SX, cs.MX] = getattr(cs, sym_type)
         self._parameters: Dict[str, Optional[SymType]] = OrderedDict()
         self._modules: Dict[str, "Module"] = OrderedDict()
 
