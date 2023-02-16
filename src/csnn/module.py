@@ -115,7 +115,7 @@ class Module(ABC, Generic[SymType]):
             yield (prefix + name, par)
         if recurse:
             for name, module in self.children():
-                yield from module.parameters(recurse=True, prefix=f"{prefix}{name}")
+                yield from module.parameters(True, f"{prefix}{name}")
 
     @abstractmethod
     def forward(self, input: SymType) -> SymType:
