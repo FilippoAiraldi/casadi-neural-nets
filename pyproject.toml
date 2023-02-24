@@ -8,7 +8,7 @@ version = "1.0.1"
 authors = [
   { name="Filippo Airaldi", email="filippoairaldi@gmail.com" },
 ]
-description = "Nonlinear Progamming with CasADi"
+description = "Neural Networks with CasADi"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }

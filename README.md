@@ -71,3 +71,7 @@ The repository is provided under the MIT License. See the LICENSE file included 
 [Filippo Airaldi](https://www.tudelft.nl/staff/f.airaldi/), PhD Candidate [f.airaldi@tudelft.nl | filippoairaldi@gmail.com]
 
 > [Delft Center for Systems and Control](https://www.tudelft.nl/en/3me/about/departments/delft-center-for-systems-and-control/) in [Delft University of Technology](https://www.tudelft.nl/en/)
+
+Copyright (c) 2023 Filippo Airaldi.
+
+Copyright notice: Technische Universiteit Delft hereby disclaims all copyright interest in the program “csnn” (Nueral Networks with CasADi) written by the Author(s). Prof. Dr. Ir. Fred van Keulen, Dean of 3mE.
