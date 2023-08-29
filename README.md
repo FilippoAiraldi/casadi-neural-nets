@@ -3,11 +3,11 @@
 **csnn** is a package for creating symbolic neural networks in [CasADi](https://web.casadi.org) in a [PyTorch](https://pytorch.org/)-like API style.
 
 [![PyPI version](https://badge.fury.io/py/csnn.svg)](https://badge.fury.io/py/csnn)
-[![Source Code License](https://img.shields.io/badge/license-MIT-blueviolet)](https://github.com/FilippoAiraldi/casadi-nlp/blob/release/LICENSE)
+[![Source Code License](https://img.shields.io/badge/license-MIT-blueviolet)](https://github.com/FilippoAiraldi/casadi-neural-nets/blob/master/LICENSE)
 ![Python 3.8](https://img.shields.io/badge/python->=3.8-green.svg)
 
 [![Tests](https://github.com/FilippoAiraldi/casadi-neural-nets/actions/workflows/ci.yml/badge.svg)](https://github.com/FilippoAiraldi/casadi-neural-nets/actions/workflows/ci.yml)
-[![Downloads](https://pepy.tech/badge/csnn)](https://pepy.tech/project/csnn)
+[![Downloads](https://static.pepy.tech/badge/csnn)](https://www.pepy.tech/projects/csnn)
 [![Maintainability](https://api.codeclimate.com/v1/badges/6006c41542cd8e902125/maintainability)](https://codeclimate.com/github/FilippoAiraldi/casadi-neural-nets/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/6006c41542cd8e902125/test_coverage)](https://codeclimate.com/github/FilippoAiraldi/casadi-neural-nets/test_coverage)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
