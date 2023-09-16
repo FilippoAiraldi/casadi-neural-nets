@@ -5,15 +5,10 @@ import casadi as cs
 SymType = TypeVar("SymType", cs.SX, cs.MX)
 
 
-x_sx = cs.SX.sym("x_sx")
-x_mx = cs.MX.sym("x_mx")
-softplus_elementwise_sx = cs.Function(
-    "softplus_sx", [x_sx], [cs.logsumexp(cs.vertcat(x_sx, 0))]
-)
-softplus_elementwise_mx = cs.Function(
-    "softplus_mx", [x_mx], [cs.logsumexp(cs.vertcat(x_mx, 0))]
-)
-del x_sx, x_mx
+x = cs.MX.sym("x_mx")
+y = cs.logsumexp(cs.vertcat(x, 0))
+softplus_elementwise_mx = cs.Function("softplus_mx", [x], [y])
+del x, y
 
 
 def linear(input: SymType, weight: SymType, bias: Optional[SymType] = None) -> SymType:
@@ -30,8 +25,10 @@ def relu(input: SymType) -> SymType:
     return cs.fmax(0, input)
 
 
-def softplus(input: SymType, beta: float = 1.0) -> SymType:
+def softplus(input: SymType, beta: float = 1.0, threshold: float = 20.0) -> SymType:
     """Applies the softplus function element-wise as
     `Softplus(x) = 1/beta * log(1 + exp(beta * x))`."""
-    f = softplus_elementwise_sx if isinstance(input, cs.SX) else softplus_elementwise_mx
-    return f(beta * input) / beta
+    bi = beta * input
+    if isinstance(input, cs.SX):
+        return cs.if_else(input > threshold, bi, cs.log1p(cs.exp(bi)) / beta)
+    return softplus_elementwise_mx(bi) / beta

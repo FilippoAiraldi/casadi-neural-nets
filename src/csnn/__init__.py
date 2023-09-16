@@ -1,11 +1,19 @@
-__all__ = ["Module", "Sequential", "Linear", "ReLU", "get_sym_type", "set_sym_type"]
+__all__ = [
+    "Module",
+    "Sequential",
+    "Linear",
+    "ReLU",
+    "SoftPlus",
+    "get_sym_type",
+    "set_sym_type",
+]
 
 
 from typing import Literal, Type, Union
 
 import casadi as cs
 
-from csnn.activation import ReLU
+from csnn.activation import ReLU, SoftPlus
 from csnn.containers import Sequential
 from csnn.linear import Linear
 from csnn.module import Module
