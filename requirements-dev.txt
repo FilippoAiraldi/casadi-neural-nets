@@ -1,2 +1,2 @@
-numpy>=1.21.6
-casadi>=3.5.*
+numpy>=1.24.2
+casadi>=3.6.3
