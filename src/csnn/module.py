@@ -38,7 +38,6 @@ class Module(ABC, Generic[SymType]):
 
     def __init__(self) -> None:
         """Initializes the module."""
-        self.training: bool = False
         self._parameters: Dict[str, Optional[SymType]] = OrderedDict()
         self._modules: Dict[str, "Module"] = OrderedDict()
 
