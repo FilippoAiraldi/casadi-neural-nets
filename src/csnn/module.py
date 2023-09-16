@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
+from numbers import Number
 from typing import (
     Any,
     ClassVar,
     Dict,
     Generic,
+    Iterable,
     Iterator,
     Optional,
     Tuple,
@@ -27,6 +29,14 @@ def _addindent(s_, numSpaces):
     s = [(numSpaces * " ") + line for line in s]
     s = "\n".join(s)
     return first + "\n" + s
+
+
+def _prod(iterable: Iterable[Number]) -> Number:
+    """Returns the product of an iterable."""
+    p = 1
+    for n in iterable:
+        p *= n
+    return p
 
 
 class Module(ABC, Generic[SymType]):
@@ -89,7 +99,7 @@ class Module(ABC, Generic[SymType]):
         yield from self._modules.items()
 
     def parameters(
-        self, recurse: bool = True, prefix: str = ""
+        self, recurse: bool = True, prefix: str = "", skip_none: bool = False
     ) -> Iterator[Tuple[str, SymType]]:
         """Returns an iterator over the module's parameters.
 
@@ -101,19 +111,31 @@ class Module(ABC, Generic[SymType]):
             default `True`.
         prefix : str, optional
             Prefix to add in front of this module's name.
+        skip_none : bool, optional
+            If `True`, then parameters with value `None` are not yielded. By default
+            `False`.
 
         Yields
         ------
-        Iterator of tuple[str, casadi.SX or MX]
-            An iterator over tuples of parameter's names and symbols.
+        Iterator of tuple[str, casadi.SX or MX or None]
+            An iterator over tuples of parameter's names and symbols. If the parameter
+            is `None`, and `skip_none=True`, then it is skipped.
         """
         if prefix != "":
             prefix += "."
         for name, par in self._parameters.items():
-            yield (prefix + name, par)
+            if not skip_none or par is not None:
+                yield (prefix + name, par)
         if recurse:
             for name, module in self.children():
-                yield from module.parameters(True, f"{prefix}{name}")
+                yield from module.parameters(True, f"{prefix}{name}", skip_none)
+
+    @property
+    def num_parameters(self) -> int:
+        """Returns the number of parameters in this module and submodules."""
+        return sum(
+            _prod(p.shape) if p is not None else 0 for _, p in self.parameters()
+        )
 
     @abstractmethod
     def forward(self, input: SymType) -> SymType:

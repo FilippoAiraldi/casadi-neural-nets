@@ -10,10 +10,9 @@ SymType = TypeVar("SymType", cs.SX, cs.MX)
 class Sequential(Module[SymType]):
     """A sequential container. Modules will be added to it in the order they are passed
     in the constructor. Alternatively, an `OrderedDict` of modules can be passed in.
-    The `forward_sym()` and `forward_num()` methods of `Sequential` accept any input and
-    forwards it to the first module it contains. It then "chains" outputs to inputs
-    sequentially for each subsequent module, finally returning the output of the last
-    module."""
+    The `forward` method of `Sequential` accepts any input and forwards it to the first
+    module it contains. It then "chains" outputs to inputs sequentially for each
+    subsequent module, finally returning the output of the last module."""
 
     def __init__(
         self, modules: Union[Dict[str, Module[SymType]], Iterable[Module[SymType]]]
