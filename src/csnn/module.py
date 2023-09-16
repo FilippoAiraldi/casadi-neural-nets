@@ -15,7 +15,6 @@ from typing import (
 
 import casadi as cs
 
-T = TypeVar("T", bound="Module")
 SymType = TypeVar("SymType", cs.SX, cs.MX)
 
 

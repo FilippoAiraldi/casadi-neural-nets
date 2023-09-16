@@ -16,7 +16,7 @@ import numpy as np
 import csnn
 
 
-class PWQ(csnn.Module):
+class Pwq(csnn.Module):
     def __init__(self, n_in: int, n_hidden: int) -> None:
         super().__init__()
         self.linear = csnn.Sequential((csnn.Linear(n_in, n_hidden), csnn.ReLU()))
@@ -31,7 +31,7 @@ class PWQ(csnn.Module):
 # create the model
 n_in = 2
 n_hidden = 8
-mdl = PWQ(n_in, n_hidden)
+mdl = Pwq(n_in, n_hidden)
 
 # turn it into a function
 x = cs.MX.sym("x", n_in, 1)
