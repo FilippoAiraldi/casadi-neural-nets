@@ -9,10 +9,12 @@ References
 
 
 from typing import Callable, Sequence, Tuple, TypeVar
+
 import casadi as cs
-import csnn
 import matplotlib.pyplot as plt
 import numpy as np
+
+import csnn
 
 SymType = TypeVar("SymType", cs.SX, cs.MX)
 
@@ -68,10 +70,8 @@ class Ficnn(csnn.Module[SymType]):
         self.input_linear = csnn.Linear(in_features, hidden_features[0], True)
         self.input_act = act
         self.hidden_layers = csnn.Sequential(
-            (
-                FicnnLayer(in_features, hidden_features[i], hidden_features[i + 1], act)
-                for i in range(len(hidden_features) - 1)
-            )
+            FicnnLayer(in_features, hidden_features[i], hidden_features[i + 1], act)
+            for i in range(len(hidden_features) - 1)
         )
         self.last_layer = FicnnLayer(
             in_features, hidden_features[-1], out_features, None

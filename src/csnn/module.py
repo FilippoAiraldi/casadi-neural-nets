@@ -133,9 +133,7 @@ class Module(ABC, Generic[SymType]):
     @property
     def num_parameters(self) -> int:
         """Returns the number of parameters in this module and submodules."""
-        return sum(
-            _prod(p.shape) if p is not None else 0 for _, p in self.parameters()
-        )
+        return sum(_prod(p.shape) if p is not None else 0 for _, p in self.parameters())
 
     @abstractmethod
     def forward(self, input: SymType) -> SymType:
