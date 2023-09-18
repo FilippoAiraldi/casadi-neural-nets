@@ -49,7 +49,6 @@ pip install csnn
 
 **csnn** has the following dependencies
 
-- [NumPy](https://numpy.org/)
 - [CasADi](https://web.casadi.org)
 
 For playing around with the source code instead, run
