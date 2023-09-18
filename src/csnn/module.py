@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from numbers import Number
+from math import prod
 from typing import (
     Any,
     ClassVar,
     Dict,
     Generic,
-    Iterable,
     Iterator,
     Optional,
     Tuple,
@@ -29,14 +28,6 @@ def _addindent(s_, numSpaces):
     s = [(numSpaces * " ") + line for line in s]
     s = "\n".join(s)
     return first + "\n" + s
-
-
-def _prod(iterable: Iterable[Number]) -> Number:
-    """Returns the product of an iterable."""
-    p = 1
-    for n in iterable:
-        p *= n
-    return p
 
 
 class Module(ABC, Generic[SymType]):
@@ -133,7 +124,7 @@ class Module(ABC, Generic[SymType]):
     @property
     def num_parameters(self) -> int:
         """Returns the number of parameters in this module and submodules."""
-        return sum(_prod(p.shape) if p is not None else 0 for _, p in self.parameters())
+        return sum(prod(p.shape) if p is not None else 0 for _, p in self.parameters())
 
     @abstractmethod
     def forward(self, input: SymType) -> SymType:
