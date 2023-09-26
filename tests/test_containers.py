@@ -68,6 +68,14 @@ class TestSequential(unittest.TestCase):
         np.testing.assert_allclose(cs.evalf(out_act), out_exp)
         self.assertIn(csSequential.__name__, repr(Ncs))
 
+    def test_indexing(self):
+        layers = [csLinear(10, 5), csReLU(), csLinear(5, 1), csReLU()]
+        sequential = csSequential(layers)
+        for i in range(len(layers)):
+            self.assertIs(layers[i], sequential[i])
+        self.assertListEqual(layers[1:3], list(sequential[1:3]._modules.values()))
+        self.assertListEqual(layers[2:4], list(sequential[2:4]._modules.values()))
+
 
 if __name__ == "__main__":
     unittest.main()

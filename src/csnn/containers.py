@@ -1,3 +1,6 @@
+from collections import OrderedDict
+from itertools import islice
+from operator import index
 from typing import Dict, Iterable, Iterator, Tuple, TypeVar, Union
 
 import casadi as cs
@@ -39,3 +42,15 @@ class Sequential(Module[SymType]):
 
     def __iter__(self) -> Iterator[Tuple[str, Module[SymType]]]:
         return iter(self._modules.items())
+
+    def __getitem__(
+        self, idx: Union[slice, int]
+    ) -> Union["Sequential[SymType]", Module[SymType]]:
+        if isinstance(idx, slice):
+            return self.__class__(OrderedDict(list(self._modules.items())[idx]))
+        size = len(self._modules)
+        idx = index(idx)
+        if not -size <= idx < size:
+            raise IndexError(f"index {idx} is out of range")
+        idx %= size
+        return next(islice(self._modules.values(), idx, None))
