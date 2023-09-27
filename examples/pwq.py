@@ -30,7 +30,7 @@ class Pwq(csnn.Module):
 
 # create the model
 n_in = 2
-n_hidden = 8
+n_hidden = 32
 mdl = Pwq(n_in, n_hidden)
 
 # turn it into a function
@@ -44,14 +44,28 @@ np_random = np.random.default_rng(69)
 p_num = {k: np_random.normal(size=v.shape) for k, v in p.items()}
 
 # force convexity of nn function
+p_num["output_weights"] = np.abs(p_num["output_weights"])
+
+# force value at origin to be close to zero
 p_num["linear.0.bias"] = -np.abs(p_num["linear.0.bias"])
-p_num["output_weights"] = +np.abs(p_num["output_weights"])
 
 # plot function
-o = np.linspace(-1000, 1000, 1000)
+p_num = cs.vvcat(p_num.values())
+o = np.linspace(-3, 3, 100)
 X1, X2 = np.meshgrid(o, o)
 X = np.stack((X1, X2)).reshape(n_in, -1)
-Y = F(X, cs.vvcat(p_num.values())).full().reshape(o.size, o.size)
+Y = F(X, p_num).full().reshape(o.size, o.size)
+
+print("Value in origin:", F(0, p_num).full().item(), "(should be zero)")
+min_idx = np.argmin(Y)
+r = np.unravel_index(min_idx, Y.shape)
+print(
+    "Minimum value:", Y[r], "at", X[:, min_idx], "(should be zero, and close to origin)"
+)
+
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 ax.plot_surface(X1, X2, Y, cmap="RdBu_r")
+ax.set_xlabel(r"$x_1$")
+ax.set_ylabel(r"$x_2$")
+ax.set_zlabel(r"$y$")
 plt.show()

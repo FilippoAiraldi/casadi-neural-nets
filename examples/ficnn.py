@@ -52,7 +52,7 @@ class FicnnLayer(csnn.Module[SymType]):
         y, z = input
         z_new = self.y_layer(y) + self.z_layer(z)
         if self.act is not None:
-            z_new = self.act(z)
+            z_new = self.act(z_new)
         return (y, z_new)
 
 
@@ -86,7 +86,7 @@ class Ficnn(csnn.Module[SymType]):
 
 # create the model
 n_in = 2
-hidden = [16, 16]
+hidden = [32, 16]
 n_out = 1
 mdl = Ficnn(n_in, hidden, n_out, csnn.SoftPlus())
 
@@ -100,16 +100,44 @@ F = cs.Function("F", [x, cs.vvcat(p.values())], [y], ["x", "p"], ["y"])
 np_random = np.random.default_rng(69)
 p_num = {k: np_random.normal(size=v.shape) for k, v in p.items()}
 
-# # force convexity of nn function
+# force convexity of nn function
 for n, val in p_num.items():
     if n.endswith("z_layer.weight"):
         p_num[n] = np.abs(val)
 
+# create a small optimisation problem to enforce that the function is zero at the origin
+# and has the global minimum there
+opti = cs.Opti("nlp")
+p_sym = {k: opti.variable(*v.shape) for k, v in p.items()}
+p_sym_v = cs.vvcat(p_sym.values())
+opti.minimize(1)
+y = F(x, p_sym_v)
+opti.subject_to(cs.substitute(y, x, 0) == 0.0)
+opti.subject_to(cs.substitute(cs.jacobian(y, x), x, 0) == 0.0)
+for name in p_sym:
+    opti.set_initial(p_sym[name], p_num[name])
+    if name.endswith("z_layer.weight"):
+        opti.subject_to(cs.vec(p_sym[name]) >= 0)
+opti.solver("ipopt")
+sol = opti.solve()
+
 # plot function
-o = np.linspace(-10000, 10000, 500)
+p_num = sol.value(p_sym_v)
+o = np.linspace(-3, 3, 100)
 X1, X2 = np.meshgrid(o, o)
 X = np.stack((X1, X2)).reshape(n_in, -1)
-Y = F(X, cs.vvcat(p_num.values())).full().reshape(o.size, o.size)
+Y = F(X, p_num).full().reshape(o.size, o.size)
+
+print("Value in origin:", F(0, p_num).full().item(), "(should be zero)")
+min_idx = np.argmin(Y)
+r = np.unravel_index(min_idx, Y.shape)
+print(
+    "Minimum value:", Y[r], "at", X[:, min_idx], "(should be zero, and close to origin)"
+)
+
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 ax.plot_surface(X1, X2, Y, cmap="RdBu_r")
+ax.set_xlabel(r"$x_1$")
+ax.set_ylabel(r"$x_2$")
+ax.set_zlabel(r"$y$")
 plt.show()
