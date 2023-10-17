@@ -9,7 +9,7 @@ __all__ = [
 ]
 
 
-from typing import Literal, Type, Union
+from typing import Literal, Union
 
 import casadi as cs
 
@@ -19,7 +19,7 @@ from csnn.linear import Linear
 from csnn.module import Module
 
 
-def get_sym_type() -> Union[Type[cs.SX], Type[cs.MX]]:
+def get_sym_type() -> Union[type[cs.SX], type[cs.MX]]:
     """Gets the casadi's symbolic type used to build the networks.
 
     Returns

@@ -8,7 +8,8 @@ References
 """
 
 
-from typing import Callable, Sequence, Tuple, TypeVar
+from collections.abc import Sequence
+from typing import Callable, TypeVar
 
 import casadi as cs
 import matplotlib.pyplot as plt
@@ -48,7 +49,7 @@ class FicnnLayer(csnn.Module[SymType]):
         self.z_layer = csnn.Linear(prev_hidden_features, out_features, bias=False)
         self.act = act
 
-    def forward(self, input: Tuple[SymType, SymType]) -> Tuple[SymType, SymType]:
+    def forward(self, input: tuple[SymType, SymType]) -> tuple[SymType, SymType]:
         y, z = input
         z_new = self.y_layer(y) + self.z_layer(z)
         if self.act is not None:

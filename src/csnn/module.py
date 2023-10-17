@@ -1,18 +1,8 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
+from collections.abc import Iterator
 from math import prod
-from typing import (
-    Any,
-    ClassVar,
-    Dict,
-    Generic,
-    Iterator,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
+from typing import Any, ClassVar, Generic, Optional, TypeVar, Union
 
 import casadi as cs
 
@@ -34,12 +24,12 @@ class Module(ABC, Generic[SymType]):
     """Base class for all neural network modules. Your models should also subclass this
     class."""
 
-    sym_type: ClassVar[Union[Type[cs.SX], Type[cs.MX]]] = cs.MX
+    sym_type: ClassVar[Union[type[cs.SX], type[cs.MX]]] = cs.MX
 
     def __init__(self) -> None:
         """Initializes the module."""
-        self._parameters: Dict[str, Optional[SymType]] = OrderedDict()
-        self._modules: Dict[str, "Module"] = OrderedDict()
+        self._parameters: dict[str, Optional[SymType]] = OrderedDict()
+        self._modules: dict[str, "Module"] = OrderedDict()
 
     def register_parameter(self, name: str, sym: Optional[SymType]) -> None:
         """Adds a parameter to the module.
@@ -79,7 +69,7 @@ class Module(ABC, Generic[SymType]):
             raise KeyError(f"Child module {name} already exists.")
         self._modules[name] = module
 
-    def children(self) -> Iterator[Tuple[str, "Module[SymType]"]]:
+    def children(self) -> Iterator[tuple[str, "Module[SymType]"]]:
         """Returns an iterator over immediate children modules.
 
         Yields
@@ -91,7 +81,7 @@ class Module(ABC, Generic[SymType]):
 
     def parameters(
         self, recurse: bool = True, prefix: str = "", skip_none: bool = False
-    ) -> Iterator[Tuple[str, SymType]]:
+    ) -> Iterator[tuple[str, SymType]]:
         """Returns an iterator over the module's parameters.
 
         Parameters

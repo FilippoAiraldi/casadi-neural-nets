@@ -1,7 +1,8 @@
 from collections import OrderedDict
+from collections.abc import Iterable, Iterator
 from itertools import islice
 from operator import index
-from typing import Dict, Iterable, Iterator, Tuple, TypeVar, Union
+from typing import TypeVar, Union
 
 import casadi as cs
 
@@ -18,7 +19,7 @@ class Sequential(Module[SymType]):
     subsequent module, finally returning the output of the last module."""
 
     def __init__(
-        self, modules: Union[Dict[str, Module[SymType]], Iterable[Module[SymType]]]
+        self, modules: Union[dict[str, Module[SymType]], Iterable[Module[SymType]]]
     ) -> None:
         """Instianties the sequential module.
 
@@ -40,7 +41,7 @@ class Sequential(Module[SymType]):
             input = module.forward(input)
         return input
 
-    def __iter__(self) -> Iterator[Tuple[str, Module[SymType]]]:
+    def __iter__(self) -> Iterator[tuple[str, Module[SymType]]]:
         return iter(self._modules.items())
 
     def __getitem__(
