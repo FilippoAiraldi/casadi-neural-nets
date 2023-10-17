@@ -4,7 +4,7 @@
 
 [![PyPI version](https://badge.fury.io/py/csnn.svg)](https://badge.fury.io/py/csnn)
 [![Source Code License](https://img.shields.io/badge/license-MIT-blueviolet)](https://github.com/FilippoAiraldi/casadi-neural-nets/blob/master/LICENSE)
-![Python 3.8](https://img.shields.io/badge/python->=3.8-green.svg)
+![Python 3.9](https://img.shields.io/badge/python->=3.9-green.svg)
 
 [![Tests](https://github.com/FilippoAiraldi/casadi-neural-nets/actions/workflows/ci.yml/badge.svg)](https://github.com/FilippoAiraldi/casadi-neural-nets/actions/workflows/ci.yml)
 [![Downloads](https://static.pepy.tech/badge/csnn)](https://www.pepy.tech/projects/csnn)
