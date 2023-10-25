@@ -9,23 +9,64 @@ References
     Approach. arXiv preprint arXiv:2205.10065.
 """
 
+from typing import Callable, TypeVar
+
 import casadi as cs
 import matplotlib.pyplot as plt
 import numpy as np
 
 import csnn
 
+SymType = TypeVar("SymType", cs.SX, cs.MX)
 
-class Pwq(csnn.Module):
-    def __init__(self, n_in: int, n_hidden: int) -> None:
+
+class ElementWiseSquare(csnn.Module[SymType]):
+    """Squares the input in an element-wise fashion."""
+
+    def forward(self, x: SymType) -> SymType:
+        return x * x
+
+
+class DotProduct(csnn.Linear[SymType]):
+    """Compute the dot product of the input with some weights."""
+
+    def __init__(self, in_features: int) -> None:
+        super().__init__(in_features, 1, False)
+
+
+class Pwq(csnn.Module[SymType]):
+    """Piecewise quadratic (PWQ) neural network."""
+
+    def __init__(
+        self,
+        in_features: int,
+        hidden_features: int,
+        act: Callable[[SymType], SymType] = csnn.ReLU(),
+    ) -> None:
+        """Creates a PWQ model.
+
+        Parameters
+        ----------
+        in_features : int
+            Number of input features.
+        hidden_features : int
+            Number of features in the single hidden layer.
+        act : Callable[[SymType], SymType], optional
+            Instance of an activation function class, or a callable that computes an
+            activation function. By default, `ReLU` is used.
+        """
         super().__init__()
-        self.linear = csnn.Sequential((csnn.Linear(n_in, n_hidden), csnn.ReLU()))
-        self.output_weights = self.sym_type.sym("r", n_hidden, 1)
+        self.layers = csnn.Sequential(
+            (
+                csnn.Linear(in_features, hidden_features),
+                act,
+                ElementWiseSquare(),
+                DotProduct(hidden_features),
+            )
+        )
 
-    def forward(self, x: cs.MX) -> cs.MX:
-        z = self.linear(x)
-        z_squared = z * z
-        return z_squared @ self.output_weights
+    def forward(self, x: SymType) -> SymType:
+        return self.layers(x)
 
 
 # create the model
@@ -36,7 +77,7 @@ mdl = Pwq(n_in, n_hidden)
 # turn it into a function
 x = cs.MX.sym("x", n_in, 1)
 y = mdl(x.T)
-p = dict(mdl.parameters())
+p = dict(mdl.parameters(skip_none=True))
 F = cs.Function("F", [x, cs.vvcat(p.values())], [y], ["x", "p"], ["y"])
 
 # simulate some weights
@@ -44,10 +85,10 @@ np_random = np.random.default_rng(69)
 p_num = {k: np_random.normal(size=v.shape) for k, v in p.items()}
 
 # force convexity of nn function
-p_num["output_weights"] = np.abs(p_num["output_weights"])
+p_num["layers.3.weight"] = np.abs(p_num["layers.3.weight"])
 
 # force value at origin to be close to zero
-p_num["linear.0.bias"] = -np.abs(p_num["linear.0.bias"])
+p_num["layers.0.bias"] = -np.abs(p_num["layers.0.bias"])
 
 # plot function
 p_num = cs.vvcat(p_num.values())

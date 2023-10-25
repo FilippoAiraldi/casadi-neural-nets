@@ -58,13 +58,34 @@ class FicnnLayer(csnn.Module[SymType]):
 
 
 class Ficnn(csnn.Module[SymType]):
+    """Feed-forward, fully connected, fully input convex neural network (FICNN)."""
+
     def __init__(
         self,
         in_features: int,
         hidden_features: Sequence[int],
         out_features: int,
-        act: Callable[[SymType], SymType],
+        act: Callable[[SymType], SymType] = csnn.SoftPlus(),
     ) -> None:
+        """Creates a FICNN model.
+
+        Parameters
+        ----------
+        in_features : int
+            Number of input features.
+        hidden_features : sequence of ints
+            Number of features in each hidden layer.
+        out_features : int
+            Number of output features.
+        act : Callable[[SymType], SymType]
+            Instance of an activation function class, or a callable that computes an
+            activation function. By default `SoftPlus` is used.
+
+        Raises
+        ------
+        ValueError
+            Raises if the number of hidden layers is less than 1.
+        """
         super().__init__()
         if len(hidden_features) < 1:
             raise ValueError("FICNN must have at least one hidden layer")
@@ -82,7 +103,8 @@ class Ficnn(csnn.Module[SymType]):
         y = input
         z1 = self.input_act(self.input_linear(y))
         _, zf_1 = self.hidden_layers((y, z1))  # i.e., z_{f-1}
-        return self.last_layer((y, zf_1))[1]
+        _, zf = self.last_layer((y, zf_1))
+        return zf
 
 
 # create the model
