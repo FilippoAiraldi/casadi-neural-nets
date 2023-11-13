@@ -6,13 +6,13 @@ import numpy as np
 import torch
 from parameterized import parameterized_class
 from torch.nn import ReLU as nnReLU
-from torch.nn import Softplus as nnSoftPlus
 from torch.nn import Sigmoid as nnSigmoid
+from torch.nn import Softplus as nnSoftPlus
 
 from csnn import Module
 from csnn import ReLU as csReLU
-from csnn import SoftPlus as csSoftPlus
 from csnn import Sigmoid as csSigmoid
+from csnn import SoftPlus as csSoftPlus
 from csnn import set_sym_type
 
 
