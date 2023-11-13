@@ -1,4 +1,4 @@
-__version__ = "1.0.2rc1"
+__version__ = "1.0.3rc1"
 
 __all__ = [
     "Module",
