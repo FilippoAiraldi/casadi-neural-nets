@@ -24,3 +24,10 @@ class SoftPlus(Module[SymType]):
 
     def extra_repr(self) -> str:
         return f"beta={self.beta}, threshold={self.threshold}"
+
+
+class Sigmoid(Module[SymType]):
+    """Applies the element-wise function `Sigmoid(x) = 1 / (1 + exp(-x))`."""
+
+    def forward(self, input: SymType) -> SymType:
+        return F.sigmoid(input)

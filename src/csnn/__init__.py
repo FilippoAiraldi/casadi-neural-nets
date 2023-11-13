@@ -1,10 +1,11 @@
-__version__ = "1.0.2"
+__version__ = "1.0.2rc1"
 
 __all__ = [
     "Module",
     "Sequential",
     "Linear",
     "ReLU",
+    "Sigmoid",
     "SoftPlus",
     "get_sym_type",
     "set_sym_type",
@@ -15,7 +16,7 @@ from typing import Literal, Union
 
 import casadi as cs
 
-from csnn.activation import ReLU, SoftPlus
+from csnn.activation import ReLU, Sigmoid, SoftPlus
 from csnn.containers import Sequential
 from csnn.linear import Linear
 from csnn.module import Module

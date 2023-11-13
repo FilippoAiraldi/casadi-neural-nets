@@ -32,3 +32,8 @@ def softplus(input: SymType, beta: float = 1.0, threshold: float = 20.0) -> SymT
     if isinstance(input, cs.SX):
         return cs.if_else(input > threshold, bi, cs.log1p(cs.exp(bi)) / beta)
     return softplus_elementwise_mx(bi) / beta
+
+
+def sigmoid(input: SymType) -> SymType:
+    """Applies the element-wise function `Sigmoid(x) = 1 / (1 + exp(-x))`."""
+    return 1 / (1 + cs.exp(-input))

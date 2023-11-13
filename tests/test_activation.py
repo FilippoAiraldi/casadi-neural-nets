@@ -7,10 +7,12 @@ import torch
 from parameterized import parameterized_class
 from torch.nn import ReLU as nnReLU
 from torch.nn import Softplus as nnSoftPlus
+from torch.nn import Sigmoid as nnSigmoid
 
 from csnn import Module
 from csnn import ReLU as csReLU
 from csnn import SoftPlus as csSoftPlus
+from csnn import Sigmoid as csSigmoid
 from csnn import set_sym_type
 
 
@@ -38,6 +40,9 @@ class TestActivation(unittest.TestCase):
 
     def test_relu__computes_right_value(self):
         self._test_activation(csReLU, nnReLU)
+
+    def test_sigmoid__computes_right_value(self):
+        self._test_activation(csSigmoid, nnSigmoid)
 
     def test_softplus__computes_right_value(self):
         self._test_activation(csSoftPlus, nnSoftPlus)
