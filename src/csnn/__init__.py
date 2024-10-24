@@ -1,6 +1,8 @@
 __version__ = "1.0.3rc1"
 
 __all__ = [
+    "Dropout",
+    "Dropout1d",
     "Module",
     "Sequential",
     "Linear",
@@ -19,6 +21,7 @@ import casadi as cs
 
 from csnn.activation import ReLU, Sigmoid, SoftPlus, Tanh
 from csnn.containers import Sequential
+from csnn.dropout import Dropout, Dropout1d
 from csnn.linear import Linear
 from csnn.module import Module
 

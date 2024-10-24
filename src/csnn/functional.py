@@ -1,3 +1,5 @@
+from itertools import product
+from random import random
 from typing import Optional, TypeVar
 
 import casadi as cs
@@ -43,3 +45,27 @@ def tanh(input: SymType) -> SymType:
     """Applies the element-wise function
     `Tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))`."""
     return cs.tanh(input)
+
+
+def dropout(input: SymType, p: float = 0.5, training: bool = False) -> SymType:
+    """Randomly zeroes some of the elements of the input tensor with probability `p`.
+    Conversely to PyTorch, this function is always inplace."""
+    if not training:
+        return input
+    n, m = input.shape  # SX/MX inputs are always 2D
+    for i, j in product(range(n), range(m)):
+        if random() < p:
+            input[i, j] = 0
+    return input / (1 - p)
+
+
+def dropout1d(input: SymType, p: float = 0.5, training: bool = False) -> SymType:
+    """Randomly zeroes some of the channles of the input tensor with probability `p`.
+    Conversely to PyTorch, this function is always inplace."""
+    if not training:
+        return input
+    n = input.shape[0]  # SX/MX inputs are always 2D
+    for i in range(n):
+        if random() < p:
+            input[i, :] = 0
+    return input / (1 - p)
