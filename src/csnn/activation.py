@@ -31,3 +31,11 @@ class Sigmoid(Module[SymType]):
 
     def forward(self, input: SymType) -> SymType:
         return F.sigmoid(input)
+
+
+class Tanh(Module[SymType]):
+    """Applies the element-wise function
+    `Tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))`."""
+
+    def forward(self, input: SymType) -> SymType:
+        return F.tanh(input)

@@ -7,6 +7,7 @@ __all__ = [
     "ReLU",
     "Sigmoid",
     "SoftPlus",
+    "Tanh",
     "get_sym_type",
     "set_sym_type",
 ]
@@ -16,7 +17,7 @@ from typing import Literal, Union
 
 import casadi as cs
 
-from csnn.activation import ReLU, Sigmoid, SoftPlus
+from csnn.activation import ReLU, Sigmoid, SoftPlus, Tanh
 from csnn.containers import Sequential
 from csnn.linear import Linear
 from csnn.module import Module

@@ -8,11 +8,13 @@ from parameterized import parameterized_class
 from torch.nn import ReLU as nnReLU
 from torch.nn import Sigmoid as nnSigmoid
 from torch.nn import Softplus as nnSoftPlus
+from torch.nn import Tanh as nnTanh
 
 from csnn import Module
 from csnn import ReLU as csReLU
 from csnn import Sigmoid as csSigmoid
 from csnn import SoftPlus as csSoftPlus
+from csnn import Tanh as csTanh
 from csnn import set_sym_type
 
 
@@ -46,6 +48,9 @@ class TestActivation(unittest.TestCase):
 
     def test_softplus__computes_right_value(self):
         self._test_activation(csSoftPlus, nnSoftPlus)
+
+    def test_tanh__computes_right_value(self):
+        self._test_activation(csTanh, nnTanh)
 
 
 if __name__ == "__main__":

@@ -37,3 +37,9 @@ def softplus(input: SymType, beta: float = 1.0, threshold: float = 20.0) -> SymT
 def sigmoid(input: SymType) -> SymType:
     """Applies the element-wise function `Sigmoid(x) = 1 / (1 + exp(-x))`."""
     return 1 / (1 + cs.exp(-input))
+
+
+def tanh(input: SymType) -> SymType:
+    """Applies the element-wise function
+    `Tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))`."""
+    return cs.tanh(input)
