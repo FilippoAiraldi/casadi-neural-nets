@@ -15,7 +15,7 @@ def torch_to_numpy(x: torch.Tensor) -> np.ndarray:
 
 
 @parameterized_class("sym_type", [("SX",), ("MX",)])
-class TestSequential(unittest.TestCase):
+class TestLinear(unittest.TestCase):
     @parameterized.expand([(True,), (False,)])
     def test_computes_right_value(self, bias: bool):
         set_sym_type(self.sym_type)
