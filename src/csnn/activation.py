@@ -12,7 +12,15 @@ class ReLU(Module[SymType]):
 
 class SoftPlus(Module[SymType]):
     """Applies the softplus function element-wise as
-    `Softplus(x) = 1 / beta * log(1 + exp(beta * x))`."""
+    `Softplus(x) = 1 / beta * log(1 + exp(beta * x))`.
+
+    Parameters
+    ----------
+    beta : float, optional
+        The beta parameter of the softplus function, by default `1.0`.
+    threshold : float, optional
+        The threshold parameter of the softplus function, by default `20.0`.
+    """
 
     def __init__(self, beta: float = 1.0, threshold: float = 20.0) -> None:
         super().__init__()

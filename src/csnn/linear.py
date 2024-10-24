@@ -4,26 +4,20 @@ from csnn.module import Module, SymType
 
 class Linear(Module[SymType]):
     """Applies a linear transformation to the incoming data: `y = xA^T + b`, where `x`
-    has shape `(*, in_features)` and `y` has shape `(*, out_features)`."""
+    has shape `(*, in_features)` and `y` has shape `(*, out_features)`.
 
-    def __init__(
-        self,
-        in_features: int,
-        out_features: int,
-        bias: bool = True,
-    ) -> None:
-        """Instantiates the linear layer.
+    Parameters
+    ----------
+    in_features : int
+        Size of each input sample
+    out_features : int
+        Size of each output sample
+    bias : bool, optional
+        If set to `False`, the layer will not learn an additive bias. Defaults to
+        `True`.
+    """
 
-        Parameters
-        ----------
-        in_features : int
-            Size of each input sample
-        out_features : int
-            Size of each output sample
-        bias : bool, optional
-            If set to `False`, the layer will not learn an additive bias. Defaults to
-            `True`.
-        """
+    def __init__(self, in_features: int, out_features: int, bias: bool = True) -> None:
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features

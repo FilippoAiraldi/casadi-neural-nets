@@ -16,18 +16,17 @@ class Sequential(Module[SymType]):
     in the constructor. Alternatively, an `OrderedDict` of modules can be passed in.
     The `forward` method of `Sequential` accepts any input and forwards it to the first
     module it contains. It then "chains" outputs to inputs sequentially for each
-    subsequent module, finally returning the output of the last module."""
+    subsequent module, finally returning the output of the last module.
+
+    Parameters
+    ----------
+    modules : dict[str, Module] or iterable of Module
+        A dict of names-modules, or an iterable or modules.
+    """
 
     def __init__(
         self, modules: Union[dict[str, Module[SymType]], Iterable[Module[SymType]]]
     ) -> None:
-        """Instianties the sequential module.
-
-        Parameters
-        ----------
-        modules : dict[str, Module] or iterable of Module
-            A dict of names-modules, or an iterable or modules.
-        """
         super().__init__()
         if isinstance(modules, dict):
             for name, module in modules.items():

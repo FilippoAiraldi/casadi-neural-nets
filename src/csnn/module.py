@@ -27,7 +27,6 @@ class Module(ABC, Generic[SymType]):
     sym_type: ClassVar[Union[type[cs.SX], type[cs.MX]]] = cs.MX
 
     def __init__(self) -> None:
-        """Initializes the module."""
         self._parameters: dict[str, Optional[SymType]] = OrderedDict()
         self._modules: dict[str, "Module"] = OrderedDict()
 
