@@ -1,6 +1,6 @@
 from itertools import product
 from random import random
-from typing import Optional, TypeVar
+from typing import Literal, Optional, TypeVar
 
 import casadi as cs
 
@@ -45,6 +45,22 @@ def tanh(input: SymType) -> SymType:
     """Applies the element-wise function
     `Tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))`."""
     return cs.tanh(input)
+
+
+def rnn_cell(
+    input: SymType,
+    hidden: SymType,
+    weight_ih: SymType,
+    weight_hh: SymType,
+    bias_ih: Optional[SymType] = None,
+    bias_hh: Optional[SymType] = None,
+    nonlinearity: Literal["tanh", "relu"] = "tanh",
+) -> SymType:
+    """Computes the output of a single Elman RNN cell."""
+    out = linear(input, weight_ih, bias_ih) + linear(hidden, weight_hh, bias_hh)
+    if nonlinearity == "tanh":
+        return tanh(out)
+    return relu(out)
 
 
 def dropout(input: SymType, p: float = 0.5, training: bool = False) -> SymType:

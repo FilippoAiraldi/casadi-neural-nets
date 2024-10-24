@@ -21,14 +21,26 @@ class Linear(Module[SymType]):
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
-        self.weight = self.sym_type.sym("A", out_features, in_features)
+        self.weight = self.sym_type.sym("weight", out_features, in_features)
         if bias:
-            self.bias = self.sym_type.sym("b", 1, out_features)
+            self.bias = self.sym_type.sym("bias", 1, out_features)
         else:
             self.bias = None
             self.register_parameter("bias", None)
 
     def forward(self, input: SymType) -> SymType:
+        """Computes the output of a linear layer.
+
+        Parameters
+        ----------
+        input : SymType
+            The input tensor of shape `(batch_size, in_features)`.
+
+        Returns
+        -------
+        SymType
+            The output tensor of shape `(batch_size, out_features)`.
+        """
         return F.linear(input, self.weight, self.bias)
 
     def extra_repr(self) -> str:

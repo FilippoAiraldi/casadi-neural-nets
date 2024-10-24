@@ -116,13 +116,13 @@ class Module(ABC, Generic[SymType]):
         return sum(prod(p.shape) if p is not None else 0 for _, p in self.parameters())
 
     @abstractmethod
-    def forward(self, input: SymType) -> SymType:
+    def forward(self, *_: SymType, **__: SymType) -> SymType:
         """Forwards symbolically the given input through the neural net.
 
         Parameters
         ----------
-        x : SymType
-            Symbolical input.
+        args, kwargs : SymType
+            Symbolical inputs.
 
         Returns
         -------
@@ -134,8 +134,8 @@ class Module(ABC, Generic[SymType]):
         """Sets the extra representation of the module."""
         return ""
 
-    def __call__(self, x: SymType) -> SymType:
-        return self.forward(x)
+    def __call__(self, *args: SymType, **kwargs: SymType) -> SymType:
+        return self.forward(*args, **kwargs)
 
     def __setattr__(self, name: str, value: Any) -> None:
         if isinstance(value, Module):
