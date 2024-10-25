@@ -4,12 +4,14 @@ __all__ = [
     "Dropout",
     "Dropout1d",
     "GELU",
+    "LeakyReLU",
     "Module",
     "Sequential",
     "Linear",
     "ReLU",
     "RNN",
     "RNNCell",
+    "SELU",
     "Sigmoid",
     "Softplus",
     "Tanh",
@@ -22,7 +24,7 @@ from typing import Literal, Union
 
 import casadi as cs
 
-from csnn.activation import GELU, ReLU, Sigmoid, Softplus, Tanh
+from csnn.activation import GELU, SELU, LeakyReLU, ReLU, Sigmoid, Softplus, Tanh
 from csnn.containers import Sequential
 from csnn.dropout import Dropout, Dropout1d
 from csnn.linear import Linear

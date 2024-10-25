@@ -32,8 +32,17 @@ class TestActivation(unittest.TestCase):
         self.assertEqual(out_actual.shape, out_expected.shape, msg=act_csnn)
         np.testing.assert_allclose(out_actual, out_expected, err_msg=act_csnn)
 
+    def test_gelu(self):
+        self._test_activation(cnn.GELU, tnn.GELU)
+
+    def test_leaky_relu(self):
+        self._test_activation(cnn.LeakyReLU, tnn.LeakyReLU)
+
     def test_relu(self):
         self._test_activation(cnn.ReLU, tnn.ReLU)
+
+    def test_selu(self):
+        self._test_activation(cnn.SELU, tnn.SELU)
 
     def test_sigmoid(self):
         self._test_activation(cnn.Sigmoid, tnn.Sigmoid)
@@ -43,9 +52,6 @@ class TestActivation(unittest.TestCase):
 
     def test_tanh(self):
         self._test_activation(cnn.Tanh, tnn.Tanh)
-
-    def test_gelu(self):
-        self._test_activation(cnn.GELU, tnn.GELU)
 
     # def test_gelu(self):
     #     self._test_activation(

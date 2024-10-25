@@ -27,6 +27,32 @@ def relu(input: SymType) -> SymType:
     return cs.fmax(0, input)
 
 
+def leaky_relu(input: SymType, negative_slope: float = 0.01) -> SymType:
+    """Applies the leaky rectified linear unit function element-wise as
+    `LeakyReLU(x) = max(0, x) + alpha * min(0, x)`, where `alpha` is a small
+    positive slope, by default `0.01`."""
+    return cs.fmax(0, input) + negative_slope * cs.fmin(0, input)
+
+
+def gelu(input: SymType, approximate: Literal["none", "tanh"] = "none") -> SymType:
+    """Applies the element-wise function
+    `GELU(x) = 0.5 * x * (1 + erf(x / sqrt(2)))`, possibly approximated to
+    `GELU(x) = 0.5 * x * (1 + tanh(sqrt(2 / pi) * (x + 0.044715 x^3)))`."""
+    if approximate == "none":
+        return 0.5 * input * (1 + cs.erf(input / cs.sqrt(2)))
+    x3 = cs.power(input, 3)
+    return 0.5 * input * (1 + tanh(cs.sqrt(2 / cs.pi) * (input + 0.044715 * x3)))
+
+
+def selu(input: SymType) -> SymType:
+    """Applies the SELU function element-wise as
+    `SELU(x) = scale * (max(0, x) + min(0, alpha * (exp(x) - 1)))`, where `alpha`
+    and `scale` are pre-defined constants."""
+    a = 1.6732632423543772848170429916717
+    s = 1.0507009873554804934193349852946
+    return s * (cs.fmax(0, input) + cs.fmin(0, a * cs.expm1(input)))
+
+
 def softplus(input: SymType, beta: float = 1.0, threshold: float = 20.0) -> SymType:
     """Applies the softplus function element-wise as
     `Softplus(x) = 1/beta * log(1 + exp(beta * x))`."""
@@ -45,16 +71,6 @@ def tanh(input: SymType) -> SymType:
     """Applies the element-wise function
     `Tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))`."""
     return cs.tanh(input)
-
-
-def gelu(input: SymType, approximate: Literal["none", "tanh"] = "none") -> SymType:
-    """Applies the element-wise function
-    `GELU(x) = 0.5 * x * (1 + erf(x / sqrt(2)))`, possibly approximated to
-    `GELU(x) = 0.5 * x * (1 + tanh(sqrt(2 / pi) * (x + 0.044715 x^3)))`."""
-    if approximate == "none":
-        return 0.5 * input * (1 + cs.erf(input / cs.sqrt(2)))
-    x3 = cs.power(input, 3)
-    return 0.5 * input * (1 + tanh(cs.sqrt(2 / cs.pi) * (input + 0.044715 * x3)))
 
 
 def rnn_cell(
