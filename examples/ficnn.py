@@ -65,7 +65,7 @@ class Ficnn(csnn.Module[SymType]):
         in_features: int,
         hidden_features: Sequence[int],
         out_features: int,
-        act: Callable[[SymType], SymType] = csnn.SoftPlus(),
+        act: Callable[[SymType], SymType] = csnn.Softplus(),
     ) -> None:
         """Creates a FICNN model.
 
@@ -111,7 +111,7 @@ class Ficnn(csnn.Module[SymType]):
 n_in = 2
 hidden = [32, 16]
 n_out = 1
-mdl = Ficnn(n_in, hidden, n_out, csnn.SoftPlus())
+mdl = Ficnn(n_in, hidden, n_out, csnn.Softplus())
 
 # turn it into a function
 x = cs.MX.sym("x", n_in, 1)

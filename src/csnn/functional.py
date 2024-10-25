@@ -47,6 +47,16 @@ def tanh(input: SymType) -> SymType:
     return cs.tanh(input)
 
 
+def gelu(input: SymType, approximate: Literal["none", "tanh"] = "none") -> SymType:
+    """Applies the element-wise function
+    `GELU(x) = 0.5 * x * (1 + erf(x / sqrt(2)))`, possibly approximated to
+    `GELU(x) = 0.5 * x * (1 + tanh(sqrt(2 / pi) * (x + 0.044715 x^3)))`."""
+    if approximate == "none":
+        return 0.5 * input * (1 + cs.erf(input / cs.sqrt(2)))
+    x3 = cs.power(input, 3)
+    return 0.5 * input * (1 + tanh(cs.sqrt(2 / cs.pi) * (input + 0.044715 * x3)))
+
+
 def rnn_cell(
     input: SymType,
     hidden: SymType,

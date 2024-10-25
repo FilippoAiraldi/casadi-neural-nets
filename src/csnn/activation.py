@@ -1,3 +1,5 @@
+from typing import Literal
+
 import csnn.functional as F
 from csnn.module import Module, SymType
 
@@ -10,7 +12,7 @@ class ReLU(Module[SymType]):
         return F.relu(input)
 
 
-class SoftPlus(Module[SymType]):
+class Softplus(Module[SymType]):
     """Applies the softplus function element-wise as
     `Softplus(x) = 1 / beta * log(1 + exp(beta * x))`.
 
@@ -47,3 +49,19 @@ class Tanh(Module[SymType]):
 
     def forward(self, input: SymType) -> SymType:
         return F.tanh(input)
+
+
+class GELU(Module[SymType]):
+    """Applies the element-wise function
+    `GELU(x) = 0.5 * x * (1 + erf(x / sqrt(2)))`, possibly approximated to
+    `GELU(x) = 0.5 * x * (1 + tanh(sqrt(2 / pi) * (x + 0.044715 x^3)))`."""
+
+    def __init__(self, approximate: Literal["none", "tanh"] = "none") -> None:
+        super().__init__()
+        self.approximate = approximate
+
+    def forward(self, input: SymType) -> SymType:
+        return F.gelu(input)
+
+    def extra_repr(self) -> str:
+        return f"approximate={self.approximate}"

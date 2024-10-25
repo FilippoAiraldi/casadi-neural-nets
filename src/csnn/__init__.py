@@ -3,13 +3,14 @@ __version__ = "1.0.3rc1"
 __all__ = [
     "Dropout",
     "Dropout1d",
+    "GELU",
     "Module",
     "Sequential",
     "Linear",
     "ReLU",
     "RNNCell",
     "Sigmoid",
-    "SoftPlus",
+    "Softplus",
     "Tanh",
     "get_sym_type",
     "set_sym_type",
@@ -20,7 +21,7 @@ from typing import Literal, Union
 
 import casadi as cs
 
-from csnn.activation import ReLU, Sigmoid, SoftPlus, Tanh
+from csnn.activation import GELU, ReLU, Sigmoid, Softplus, Tanh
 from csnn.containers import Sequential
 from csnn.dropout import Dropout, Dropout1d
 from csnn.linear import Linear
