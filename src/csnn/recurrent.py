@@ -110,8 +110,9 @@ class RNN(Module[SymType]):
         f = self.sym_type.sym
         self.weight_ih_l0 = f("weight_ih_l0", hs, input_size)
         self.weight_hh_l0 = f("weight_hh_l0", hs, hs)
-        self.bias_ih_l0 = f("bias_ih_l0", 1, hs)
-        self.bias_hh_l0 = f("bias_hh_l0", 1, hs)
+        if bias:
+            self.bias_ih_l0 = f("bias_ih_l0", 1, hs)
+            self.bias_hh_l0 = f("bias_hh_l0", 1, hs)
         for i in range(1, num_layers):
             w_ih = f"weight_ih_l{i}"
             w_hh = f"weight_hh_l{i}"

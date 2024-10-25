@@ -16,6 +16,7 @@ __all__ = [
     "Softplus",
     "Tanh",
     "get_sym_type",
+    "init_parameters",
     "set_sym_type",
 ]
 
@@ -24,12 +25,12 @@ from typing import Literal, Union
 
 import casadi as cs
 
-from csnn.activation import GELU, SELU, LeakyReLU, ReLU, Sigmoid, Softplus, Tanh
-from csnn.containers import Sequential
-from csnn.dropout import Dropout, Dropout1d
-from csnn.linear import Linear
-from csnn.module import Module
-from csnn.recurrent import RNN, RNNCell
+from .activation import GELU, SELU, LeakyReLU, ReLU, Sigmoid, Softplus, Tanh
+from .containers import Sequential
+from .dropout import Dropout, Dropout1d
+from .linear import Linear
+from .module import Module
+from .recurrent import RNN, RNNCell
 
 
 def get_sym_type() -> Union[type[cs.SX], type[cs.MX]]:
@@ -52,3 +53,6 @@ def set_sym_type(type: Literal["SX", "MX"]) -> None:
         The name of the symbolic type to set.
     """
     Module.sym_type = getattr(cs, type)
+
+
+from .init import init_parameters  # import this guy for last

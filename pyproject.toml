@@ -25,6 +25,8 @@ classifiers = [
 ]
 dependencies = [
     "casadi >= 3.6.3",
+    "numpy >= 1.24.2",
+    "typing_extensions >= 4.6.0",
 ]
 keywords = ["casadi", "nonlinear-optimization", "neural-networks"]
 dynamic = ["version"]
