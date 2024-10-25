@@ -73,6 +73,65 @@ def rnn_cell(
     return relu(out)
 
 
+def rnn(
+    input: SymType,
+    hidden: SymType,
+    weights_ih: list[SymType],
+    weights_hh: list[SymType],
+    biases_ih: Optional[list[SymType]] = None,
+    biases_hh: Optional[list[SymType]] = None,
+    nonlinearity: Literal["tanh", "relu"] = "tanh",
+) -> tuple[SymType, SymType]:
+    """Applies a multi-layer Elman RNN cell with tanh or ReLU nonlinearity."""
+    num_layers, h_size = hidden.shape
+    seq_len, in_size = input.shape
+    has_biases = biases_ih is not None
+
+    # transform the evaluation of all layers into a single function call - but if the
+    # sequence length is 1, we can just return at the end of the loop
+    if seq_len == 1:
+        input_ = input[0, :]
+        hidden_ = hidden
+    else:
+        sym = weights_ih[0].sym
+        input_ = input_loop = sym("in", in_size, 1).T
+        hidden_ = sym("hidd", *hidden.shape)
+    output_ = []
+    for layer in range(num_layers):
+        input_loop = rnn_cell(
+            input_loop,
+            hidden_[layer, :],
+            weights_ih[layer],
+            weights_hh[layer],
+            biases_ih[layer] if has_biases else None,
+            biases_hh[layer] if has_biases else None,
+            nonlinearity,
+        )
+        output_.append(input_loop)
+    output = cs.vcat(output_)
+    if seq_len == 1:
+        return output_[-1], output
+
+    weights = weights_ih + weights_hh
+    if has_biases:
+        weights += biases_ih + biases_hh
+    layers = cs.Function(
+        "L", [hidden_, input_.T] + weights, (output, output[-1, :].T), {"cse": True}
+    )
+
+    # process each layer
+    # OLD FOR-LOOP IMPLEMENTATION
+    # output_.clear()
+    # for t in range(seq_len):
+    #     hidden, output = layers(hidden, input[t, :].T, *weights)
+    #     output_.append(output.T)
+    # return cs.vcat(output_), hidden
+    mapaccum = layers.mapaccum(seq_len)
+    all_hiddens, output = mapaccum(hidden, input.T, *weights)
+    last_hidden = all_hiddens[:, -h_size:]
+    return output.T, last_hidden
+
+
 def dropout(input: SymType, p: float = 0.5, training: bool = False) -> SymType:
     """Randomly zeroes some of the elements of the input tensor with probability `p`.
     Conversely to PyTorch, this function is always inplace."""

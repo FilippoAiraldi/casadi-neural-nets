@@ -8,6 +8,7 @@ __all__ = [
     "Sequential",
     "Linear",
     "ReLU",
+    "RNN",
     "RNNCell",
     "Sigmoid",
     "Softplus",
@@ -26,7 +27,7 @@ from csnn.containers import Sequential
 from csnn.dropout import Dropout, Dropout1d
 from csnn.linear import Linear
 from csnn.module import Module
-from csnn.recurrent import RNNCell
+from csnn.recurrent import RNN, RNNCell
 
 
 def get_sym_type() -> Union[type[cs.SX], type[cs.MX]]:
