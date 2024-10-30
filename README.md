@@ -39,6 +39,38 @@ assert output.shape == (batch, 1)
 
 ---
 
+## Implemented Modules
+
+So far, the following modules that are available in PyTorch have been implemented:
+
+- Containers
+  * Module
+  * Sequential
+- Activation functions
+  * GELU
+  * SELU
+  * LeakyReLU
+  * ReLU
+  * Sigmoid
+  * Softplus
+  * Tanh
+- Linear layers
+  * Linear
+- Recurrent layers
+  * RNNCell
+  * RNN
+- Dropout layers
+  * Dropout
+  * Dropout1d
+
+Additionally, the library provides the implementation for the following convex neural networks (see `csnn.convex`):
+
+- FicNN
+- PwqNN
+- PsdNN
+
+---
+
 ## Installation
 
 To install the package, run
