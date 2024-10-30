@@ -15,6 +15,7 @@ __all__ = [
     "Sigmoid",
     "Softplus",
     "Tanh",
+    "convex",
     "get_sym_type",
     "init_parameters",
     "set_sym_type",
@@ -55,4 +56,8 @@ def set_sym_type(type: Literal["SX", "MX"]) -> None:
     Module.sym_type = getattr(cs, type)
 
 
-from .init import init_parameters  # import this guy for last
+# import these guys for last
+
+import csnn.convex as convex
+
+from .init import init_parameters

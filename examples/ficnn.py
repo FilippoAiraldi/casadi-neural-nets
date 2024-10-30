@@ -8,110 +8,17 @@ References
 """
 
 
-from collections.abc import Sequence
-from typing import Callable, TypeVar
-
 import casadi as cs
 import matplotlib.pyplot as plt
 import numpy as np
 
 import csnn
 
-SymType = TypeVar("SymType", cs.SX, cs.MX)
-
-
-class FicnnLayer(csnn.Module[SymType]):
-    """A fully connected input convex neural network (FICNN) layer consisting of two
-    linear elements."""
-
-    def __init__(
-        self,
-        in_features: int,
-        prev_hidden_features: int,
-        out_features: int,
-        act: Callable[[SymType], SymType] = None,
-    ) -> None:
-        """Creates a layer of a FICNN.
-
-        Parameters
-        ----------
-        in_features : int
-            Feature size of the very first input of the convex net.
-        hidden_features : int
-            Feature size of the previous hidden layer's output.
-        out_features : int
-            Feature size of this layer's output.
-        act : Callable, optional
-            An optional activation function to apply to the output of this layer.
-        """
-        super().__init__()
-        self.y_layer = csnn.Linear(in_features, out_features, bias=True)
-        self.z_layer = csnn.Linear(prev_hidden_features, out_features, bias=False)
-        self.act = act
-
-    def forward(self, input: tuple[SymType, SymType]) -> tuple[SymType, SymType]:
-        y, z = input
-        z_new = self.y_layer(y) + self.z_layer(z)
-        if self.act is not None:
-            z_new = self.act(z_new)
-        return (y, z_new)
-
-
-class Ficnn(csnn.Module[SymType]):
-    """Feed-forward, fully connected, fully input convex neural network (FICNN)."""
-
-    def __init__(
-        self,
-        in_features: int,
-        hidden_features: Sequence[int],
-        out_features: int,
-        act: Callable[[SymType], SymType] = csnn.Softplus(),
-    ) -> None:
-        """Creates a FICNN model.
-
-        Parameters
-        ----------
-        in_features : int
-            Number of input features.
-        hidden_features : sequence of ints
-            Number of features in each hidden layer.
-        out_features : int
-            Number of output features.
-        act : Callable[[SymType], SymType]
-            Instance of an activation function class, or a callable that computes an
-            activation function. By default `SoftPlus` is used.
-
-        Raises
-        ------
-        ValueError
-            Raises if the number of hidden layers is less than 1.
-        """
-        super().__init__()
-        if len(hidden_features) < 1:
-            raise ValueError("FICNN must have at least one hidden layer")
-        self.input_linear = csnn.Linear(in_features, hidden_features[0], True)
-        self.input_act = act
-        self.hidden_layers = csnn.Sequential(
-            FicnnLayer(in_features, hidden_features[i], hidden_features[i + 1], act)
-            for i in range(len(hidden_features) - 1)
-        )
-        self.last_layer = FicnnLayer(
-            in_features, hidden_features[-1], out_features, None
-        )
-
-    def forward(self, input: SymType) -> SymType:
-        y = input
-        z1 = self.input_act(self.input_linear(y))
-        _, zf_1 = self.hidden_layers((y, z1))  # i.e., z_{f-1}
-        _, zf = self.last_layer((y, zf_1))
-        return zf
-
-
 # create the model
 n_in = 2
 hidden = [32, 16]
 n_out = 1
-mdl = Ficnn(n_in, hidden, n_out, csnn.Softplus())
+mdl = csnn.convex.FicNN(n_in, hidden, n_out)
 
 # turn it into a function
 x = cs.MX.sym("x", n_in, 1)
@@ -119,14 +26,8 @@ y = mdl(x.T)
 p = dict(mdl.parameters(skip_none=True))
 F = cs.Function("F", [x, cs.vvcat(p.values())], [y], ["x", "p"], ["y"])
 
-# simulate some weights
-np_random = np.random.default_rng(69)
-p_num = {k: np_random.normal(size=v.shape) for k, v in p.items()}
-
-# force convexity of nn function
-for n, val in p_num.items():
-    if n.endswith("z_layer.weight"):
-        p_num[n] = np.abs(val)
+# initialize the parameters with this class' specific init_parameters method
+p_num = dict(mdl.init_parameters(seed=69))
 
 # create a small optimisation problem to enforce that the function is zero at the origin
 # and has the global minimum there
@@ -134,9 +35,10 @@ opti = cs.Opti("nlp")
 p_sym = {k: opti.variable(*v.shape) for k, v in p.items()}
 p_sym_v = cs.vvcat(p_sym.values())
 opti.minimize(1)
-y = F(x, p_sym_v)
-opti.subject_to(cs.substitute(y, x, 0) == 0.0)
-opti.subject_to(cs.substitute(cs.jacobian(y, x), x, 0) == 0.0)
+Fjac = F.factory("Fjac", F.name_in(), ["y", "jac:y:x"])
+F0, Fjac0 = Fjac(0.0, p_sym_v)  # 0.0 as the origin, but could be any point
+opti.subject_to(F0 == 0.0)
+opti.subject_to(Fjac0 == 0.0)
 for name in p_sym:
     opti.set_initial(p_sym[name], p_num[name])
     if name.endswith("z_layer.weight"):
