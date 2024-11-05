@@ -106,7 +106,7 @@ class FicNN(Module[SymType]):
         enforce_convex: bool = True,
         prefix: str = "",
         seed: RngType = None,
-    ) -> Iterator[tuple[str, Optional[npt.NDArray[np.floating]]]]:
+    ) -> Iterator[tuple[str, npt.NDArray[np.floating]]]:
         """Similarly to `csnn.init_parameters`, initializes the parameters
         (i.e., weights) of this neural network in such a way to enforce convexity. This
         is achieved by setting the weights of all `z_layers` to be nonnegative. If
