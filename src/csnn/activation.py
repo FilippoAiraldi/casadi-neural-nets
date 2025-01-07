@@ -44,6 +44,14 @@ class GELU(Module[SymType]):
         return f"approximate={self.approximate}"
 
 
+class ELU(Module[SymType]):
+    """Applies the ELU function element-wise as
+    `ELU(x) = max(0, x) + min(0, alpha * (exp(x) - 1))`."""
+
+    def forward(self, input: SymType) -> SymType:
+        return F.elu(input)
+
+
 class SELU(Module[SymType]):
     """Applies the SELU function element-wise as
     `SELU(x) = scale * (max(0, x) + min(0, alpha * (exp(x) - 1)))`, where `alpha`

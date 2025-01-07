@@ -41,6 +41,9 @@ class TestActivation(unittest.TestCase):
     def test_relu(self):
         self._test_activation(cnn.ReLU, tnn.ReLU)
 
+    def test_elu(self):
+        self._test_activation(cnn.ELU, tnn.ELU)
+
     def test_selu(self):
         self._test_activation(cnn.SELU, tnn.SELU)
 

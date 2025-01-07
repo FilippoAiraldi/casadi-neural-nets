@@ -44,13 +44,19 @@ def gelu(input: SymType, approximate: Literal["none", "tanh"] = "none") -> SymTy
     return 0.5 * input * (1 + tanh(cs.sqrt(2 / cs.pi) * (input + 0.044715 * x3)))
 
 
+def elu(input: SymType, alpha: float = 1.0) -> SymType:
+    """Applies the ELU function element-wise as
+    `ELU(x) = max(0, x) + min(0, alpha * (exp(x) - 1))`."""
+    return cs.fmax(0, input) + cs.fmin(0, alpha * cs.expm1(input))
+
+
 def selu(input: SymType) -> SymType:
     """Applies the SELU function element-wise as
     `SELU(x) = scale * (max(0, x) + min(0, alpha * (exp(x) - 1)))`, where `alpha`
     and `scale` are pre-defined constants."""
-    a = 1.6732632423543772848170429916717
-    s = 1.0507009873554804934193349852946
-    return s * (cs.fmax(0, input) + cs.fmin(0, a * cs.expm1(input)))
+    return 1.0507009873554804934193349852946 * elu(
+        input, 1.6732632423543772848170429916717
+    )
 
 
 def softplus(input: SymType, beta: float = 1.0, threshold: float = 20.0) -> SymType:

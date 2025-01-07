@@ -4,6 +4,7 @@ __all__ = [
     "Dropout",
     "Dropout1d",
     "GELU",
+    "ELU",
     "LeakyReLU",
     "Module",
     "Sequential",
@@ -26,7 +27,7 @@ from typing import Literal, Union
 
 import casadi as cs
 
-from .activation import GELU, SELU, LeakyReLU, ReLU, Sigmoid, Softplus, Tanh
+from .activation import ELU, GELU, SELU, LeakyReLU, ReLU, Sigmoid, Softplus, Tanh
 from .containers import Sequential
 from .dropout import Dropout, Dropout1d
 from .linear import Linear
