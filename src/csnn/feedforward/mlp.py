@@ -69,12 +69,12 @@ class Mlp(Module[SymType]):
             raise ValueError("Mlp must have at least one layer.")
 
         n_hidden = len(features) - 1
-        if not isinstance(acts, Sequence):
+        if acts is None or isinstance(acts, type):
             acts = repeat(acts, n_hidden)
         elif len(acts) != n_hidden:
             raise ValueError("Invalid number of activation functions provided.")
 
-        if not isinstance(biases, Sequence):
+        if isinstance(biases, bool):
             biases = repeat(biases, n_hidden)
         elif len(biases) != n_hidden:
             raise ValueError("Invalid number of bias flags provided.")
