@@ -18,7 +18,6 @@ class TestInit(unittest.TestCase):
             n: (p.mean().item(), p.std().item()) for n, p in mdl_tnn.named_parameters()
         }
         self.assertSetEqual(set(stats_cnn.keys()), set(stats_tnn.keys()))
-        print(mdl_cnn.__class__.__name__, stats_cnn, stats_tnn, "\n", sep="\n")
         for n in stats_cnn:
             mean1, std1 = stats_cnn[n]
             mean2, std2 = stats_tnn[n]

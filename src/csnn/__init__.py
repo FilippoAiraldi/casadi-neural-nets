@@ -1,4 +1,4 @@
-__version__ = "1.0.4.post1"
+__version__ = "1.0.5"
 
 __all__ = [
     "Dropout",
