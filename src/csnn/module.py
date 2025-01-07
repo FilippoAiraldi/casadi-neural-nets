@@ -1,9 +1,14 @@
+import sys
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from math import prod
 from typing import Any, ClassVar, Generic, Optional, TypeVar, Union
 
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 import casadi as cs
 
 SymType = TypeVar("SymType", cs.SX, cs.MX)
@@ -109,6 +114,25 @@ class Module(ABC, Generic[SymType]):
         if recurse:
             for name, module in self.children():
                 yield from module.parameters(True, f"{prefix}{name}", skip_none)
+
+    def apply(self, fn: Callable[["Module[SymType]"], None]) -> Self:
+        """Apply `fn` recursively to every submodule (as returned by `.children`) as
+        well as self.
+
+        Parameters
+        ----------
+        fn : callable
+            Function to be applied to each submodule.
+
+        Returns
+        -------
+        Module
+            A reference to self.
+        """
+        for _, module in self.children():
+            module.apply(fn)
+        fn(self)
+        return self
 
     @property
     def num_parameters(self) -> int:
