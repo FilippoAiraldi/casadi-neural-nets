@@ -1,20 +1,23 @@
 name: Tests
 
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - 'refs/tags/*'
+  pull_request:
+    branches-ignore:
+      - 'refs/tags/*'
 
 jobs:
-  # https://github.com/philschmid/github-actions/blob/master/python/run-unittest-on-pr-open.yaml
-  # https://docs.codeclimate.com/docs/github-actions-test-coverage
-
-  test-coverage:
+  tests:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -29,6 +32,7 @@ jobs:
         run: |
           coverage run -m unittest discover ./tests 'test_*.py'
       - name: Coverage with Code Climate
+        if: github.ref == 'refs/heads/master' && matrix.python-version == '3.9'
         uses: paambaati/codeclimate-action@v9
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPORTER_ID }}
