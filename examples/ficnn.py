@@ -7,7 +7,6 @@ References
     International Conference on Machine Learning (pp. 146-155). PMLR.
 """
 
-
 import casadi as cs
 import matplotlib.pyplot as plt
 import numpy as np
