@@ -1,6 +1,7 @@
 __version__ = "1.0.5.post2"
 
 __all__ = [
+    "BatchNorm1d",
     "Dropout",
     "Dropout1d",
     "GELU",
@@ -33,6 +34,7 @@ from .containers import Sequential
 from .dropout import Dropout, Dropout1d
 from .linear import Linear
 from .module import Module
+from .norm import BatchNorm1d
 from .recurrent import RNN, RNNCell
 
 

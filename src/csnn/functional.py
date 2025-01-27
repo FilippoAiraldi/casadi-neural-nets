@@ -167,7 +167,7 @@ def dropout(input: SymType, p: float = 0.5, training: bool = False) -> SymType:
 
 
 def dropout1d(input: SymType, p: float = 0.5, training: bool = False) -> SymType:
-    """Randomly zeroes some of the channles of the input tensor with probability `p`.
+    """Randomly zeroes some of the channels of the input tensor with probability `p`.
     Conversely to PyTorch, this function is always inplace."""
     if not training:
         return input
@@ -176,3 +176,19 @@ def dropout1d(input: SymType, p: float = 0.5, training: bool = False) -> SymType
         if random() < p:
             input[i, :] = 0
     return input / (1 - p)
+
+
+def batch_norm1d(
+    input: SymType,
+    mean: SymType,
+    std: SymType,
+    weight: Optional[SymType] = None,
+    bias: Optional[SymType] = None,
+) -> SymType:
+    """Applies batch normalization over a 2D input."""
+    output = (input.T - mean) / std
+    if weight is not None:
+        output *= weight
+    if bias is not None:
+        output += bias
+    return output.T
