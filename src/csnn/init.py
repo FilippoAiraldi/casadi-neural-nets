@@ -103,7 +103,7 @@ def _init(
     module: "Module", skip_none: bool, seed: RngType = None
 ) -> Generator[tuple[str, Optional[npt.NDArray[np.floating]]], None, None]:
     """Internal function to initialize a module's parameters based on its class."""
-    from csnn import RNN, Linear, RNNCell
+    from csnn import RNN, BatchNorm1d, Linear, RNNCell
 
     np_random = np.random.default_rng(seed)
 
@@ -130,6 +130,16 @@ def _init(
                 yield name, weight
             elif not skip_none:
                 yield name, None
+
+    elif isinstance(module, BatchNorm1d):
+        yield "running_mean", np.zeros(module.running_mean.shape)
+        yield "running_std", np.ones(module.running_std.shape)
+        if module.affine:
+            yield "weight", np.ones(module.weight.shape)
+            yield "bias", np.zeros(module.bias.shape)
+        elif not skip_none:
+            yield "weight", None
+            yield "bias", None
 
 
 def init_parameters(

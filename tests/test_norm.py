@@ -31,7 +31,7 @@ class TestNormalization(unittest.TestCase):
         out_exp = to_numpy(Lt(torch.from_numpy(in_num)))
 
         in_sym = Lc.sym_type.sym("x", batch_size, num_features)
-        syms = [in_sym, Lc.mean, Lc.std]
+        syms = [in_sym, Lc.running_mean, Lc.running_std]
         vals = [in_num, to_numpy(Lt.running_mean), to_numpy(Lt.running_var.sqrt())]
         if affine:
             syms.extend([Lc.weight, Lc.bias])

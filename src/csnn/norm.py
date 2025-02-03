@@ -24,8 +24,8 @@ class BatchNorm1d(Module[SymType]):
         super().__init__()
         self.num_features = num_features
         self.affine = affine
-        self.mean = self.sym_type.sym("mean", num_features, 1)
-        self.std = self.sym_type.sym("std", num_features, 1)
+        self.running_mean = self.sym_type.sym("running_mean", num_features, 1)
+        self.running_std = self.sym_type.sym("running_std", num_features, 1)
         if affine:
             self.weight = self.sym_type.sym("weight", num_features, 1)
             self.bias = self.sym_type.sym("bias", num_features, 1)
@@ -47,7 +47,9 @@ class BatchNorm1d(Module[SymType]):
         SymType
             The output tensor of shape `(batch_size, num_features)`.
         """
-        return F.batch_norm1d(input, self.mean, self.std, self.weight, self.bias)
+        return F.batch_norm1d(
+            input, self.running_mean, self.running_std, self.weight, self.bias
+        )
 
     def extra_repr(self) -> str:
         return f"{self.num_features}, affine={self.affine}"
