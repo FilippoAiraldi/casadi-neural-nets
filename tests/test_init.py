@@ -45,6 +45,18 @@ class TestInit(unittest.TestCase):
         mdl_tnn = tnn.RNN(*sizes, bias=bias, dtype=float)
         self._test_stats(mdl_cnn, mdl_tnn)
 
+    def test_init__batchnorm1d(self):
+        size = 12
+        mdl_cnn = cnn.BatchNorm1d(size)
+        pars = cnn.init_parameters(mdl_cnn)
+        for n, p in pars:
+            if n == "running_mean" or n == "bias":
+                np.testing.assert_array_equal(p, 0.0)
+            elif n == "running_std" or n == "weight":
+                np.testing.assert_array_equal(p, 1.0)
+            else:
+                raise ValueError(f"unexpected parameter {n}")
+
 
 if __name__ == "__main__":
     unittest.main()
