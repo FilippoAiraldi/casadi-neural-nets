@@ -22,7 +22,6 @@ from ..activation import ReLU
 from ..containers import Sequential
 from ..linear import Linear
 from ..module import Module
-from ..norm import BatchNorm1d
 
 SymType = TypeVar("SymType", cs.SX, cs.MX)
 
@@ -77,8 +76,6 @@ class PsdNN(Module[SymType]):
         Shape of the output matrix. If "flat", the output is not reshaped in any matrix.
         If "triu" or "tril", the output is reshaped as an upper or lower triangular,
         but does not support batched inputs.
-    input_batchnorm : bool, optional
-        Whether to apply batch normalization to the input. By default, `False`.
     act : type of activation function, optional
         Class of the activation function. By default, `ReLU` is used.
 
@@ -94,27 +91,20 @@ class PsdNN(Module[SymType]):
         hidden_features: Sequence[int],
         out_mat_size: int,
         out_shape: Literal["flat", "triu", "tril"],
-        input_batchnorm: bool = False,
         act: type[Module[SymType]] = ReLU,
     ) -> None:
         if len(hidden_features) < 1:
             raise ValueError("Psdnn must have at least one hidden layer")
         super().__init__()
-        first_layer = (
-            [BatchNorm1d(in_features, affine=False)] if input_batchnorm else []
-        )
-
         features = chain([in_features], hidden_features)
         out_features = (out_mat_size * (out_mat_size + 1)) // 2
         inner_layers = chain.from_iterable(
             (Linear(i, j), act()) for i, j in pairwise(features)
         )
-
         last_layer = [Linear(hidden_features[-1], out_features)]
         if out_shape != "flat":
             last_layer.append(TriReshape(out_mat_size, out_shape))
-
-        self.layers = Sequential(chain(first_layer, inner_layers, last_layer))
+        self.layers = Sequential(chain(inner_layers, last_layer))
 
     def forward(self, input: SymType) -> SymType:
         return self.layers(input)
