@@ -26,43 +26,30 @@ from ..module import Module
 SymType = TypeVar("SymType", cs.SX, cs.MX)
 
 
-class TriReshape(Module):
-    """Layer that can reshape the input as a lower or upper triangular matrix."""
+def _reshape_mat(x: SymType, size: int, shape: Literal["triu", "tril"]) -> SymType:
+    # casadi at most supports 2D matrices, so the input must be non-batched
+    x = cs.vec(x)
+    if shape == "triu":
+        indices = triu_indices(size)
+        ensure_triangular = cs.triu
+    else:
+        indices = tril_indices(size)
+        ensure_triangular = cs.tril
 
-    def __init__(self, mat_size: int, mat_shape: Literal["triu", "tril"]) -> None:
-        super().__init__()
-        self.mat_size = mat_size
-        self.mat_shape = mat_shape
-
-    def forward(self, x: SymType) -> SymType:
-        # casadi at most supports 2D matrices, so the input must be non-batched
-        x = cs.vec(x)
-        m = self.mat_size
-
-        if self.mat_shape == "triu":
-            indices = triu_indices(m)
-            ensure_triangular = cs.triu
-        else:
-            indices = tril_indices(m)
-            ensure_triangular = cs.tril
-
-        mat = x.zeros(m, m)
-        k = 0
-        for i, j in zip(*indices):
-            mat[i, j] = x[k]
-            k += 1
-        return ensure_triangular(mat)
-
-    def extra_repr(self) -> str:
-        return f"mat_size={self.mat_size}, mat_shape={self.mat_shape}"
+    mat = x.zeros(size, size)
+    k = 0
+    for i, j in zip(*indices):
+        mat[i, j] = x[k]
+        k += 1
+    return ensure_triangular(mat)
 
 
 class PsdNN(Module[SymType]):
-    """Network that outputs the Cholesky decomposition of a positive semi-definite
-    matrix (PSD) for any input. The decomposition is returned as a flattened
-    triangular matrix, by default; however, when calling the model one can choose
-    also to return the upper or lower triangular part of the matrix (see `forward`) for
-    more details.
+    """Network that computes a quadratic form by returning the Cholesky decomposition
+    of a positive semi-definite matrix (PSD) and a reference point for any input. The
+    decomposition is returned as a flattened triangular matrix, by default; however,
+    when calling the model one can choose also to return the upper or lower triangular
+    part of the matrix (see `forward`) for more details.
 
     Parameters
     ----------
@@ -70,14 +57,17 @@ class PsdNN(Module[SymType]):
         Number of input features.
     hidden_features : sequence of ints
         Number of features in each hidden linear layer.
-    out_mat_size : int
-        Size of the output PSD square matrix (i.e., its side length).
+    out_size : int
+        Size of the quadratic form elements (i.e., the side length of the PSD matrix).
     out_shape : {"flat", "triu", "tril"}
-        Shape of the output matrix. If "flat", the output is not reshaped in any matrix.
-        If "triu" or "tril", the output is reshaped as an upper or lower triangular,
-        but does not support batched inputs.
+        Shape of the output PSD matrix. If "flat", the output is not reshaped in any
+        matrix. If "triu" or "tril", the output is reshaped as an upper or lower
+        triangular, but does not support batched inputs.
     act : type of activation function, optional
         Class of the activation function. By default, `ReLU` is used.
+    eps : float, optional
+        Small value to add to the diagonal of the PSD matrix to ensure it is positive
+        definite. By default, `1e-2` is used. Only used in the `quadform` method.
 
     Raises
     ------
@@ -89,22 +79,54 @@ class PsdNN(Module[SymType]):
         self,
         in_features: int,
         hidden_features: Sequence[int],
-        out_mat_size: int,
+        out_size: int,
         out_shape: Literal["flat", "triu", "tril"],
         act: type[Module[SymType]] = ReLU,
+        eps: float = 1e-2,
     ) -> None:
         if len(hidden_features) < 1:
             raise ValueError("Psdnn must have at least one hidden layer")
         super().__init__()
         features = chain([in_features], hidden_features)
-        out_features = (out_mat_size * (out_mat_size + 1)) // 2
-        inner_layers = chain.from_iterable(
-            (Linear(i, j), act()) for i, j in pairwise(features)
+        self.hidden_layers = Sequential(
+            chain.from_iterable((Linear(i, j), act()) for i, j in pairwise(features))
         )
-        last_layer = [Linear(hidden_features[-1], out_features)]
-        if out_shape != "flat":
-            last_layer.append(TriReshape(out_mat_size, out_shape))
-        self.layers = Sequential(chain(inner_layers, last_layer))
+        self.mat_head = Linear(hidden_features[-1], (out_size * (out_size + 1)) // 2)
+        self.ref_head = Linear(hidden_features[-1], out_size)
+        self._eps = eps * cs.DM_eye(out_size)
+        self._out_shape = out_shape
 
-    def forward(self, input: SymType) -> SymType:
-        return self.layers(input)
+    def _forward(self, input: SymType) -> tuple[SymType, SymType]:
+        """Forward pass without reshaping the output matrix"""
+        h = self.hidden_layers(input)
+        ref = self.ref_head(h)
+        mat_flat = self.mat_head(h)
+        return mat_flat, ref
+
+    def forward(self, input: SymType) -> tuple[SymType, SymType]:
+        """Forward pass folloewd by reshaping of the output matrix"""
+        mat, ref = self._forward(input)
+        if self._out_shape != "flat":
+            mat = _reshape_mat(mat, self._eps.size1(), self._out_shape)
+        return mat, ref
+
+    def quadform(self, x: SymType, context: SymType) -> SymType:
+        """Computes the quadratic form `(x - x_ref)' Q (x - x_ref)` where `Q` is the
+        predicted the PSD matrix and `x_ref` the reference point.
+
+        Parameters
+        ----------
+        x : SymType
+            The value at which the quadratic form is evaluated.
+        context : SymType
+            The context passed as input to the neural network for the prediction of the
+            PSD matrix and the reference point.
+
+        Returns
+        -------
+        SymType
+            The value of the quadratic form.
+        """
+        L_flat, ref = self._forward(context)
+        L = _reshape_mat(L_flat, self._eps.size1(), "tril")
+        return cs.bilin(L @ L.T + self._eps, x - ref)
