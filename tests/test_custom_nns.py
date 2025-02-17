@@ -34,18 +34,20 @@ class TestConvex(unittest.TestCase):
         n_hidden = np.random.randint(5, 10, size=3)
         mdl = PsdNN(n_in, n_hidden, n_out, out_shape)
         x = cs.DM.rand(n_in)
-        y: cs.MX = mdl(x.T)
+        L, ref = mdl(x.T)
         if out_shape == "flat":
-            self.assertTrue(y.is_vector())
-            self.assertEqual(y.numel(), n_out * (n_out + 1) // 2)
+            self.assertTrue(L.is_vector())
+            self.assertEqual(L.numel(), n_out * (n_out + 1) // 2)
         elif out_shape == "triu":
-            self.assertTrue(y.is_square())
-            self.assertTrue(y.is_triu())
-            self.assertEqual(y.size1(), n_out)
+            self.assertTrue(L.is_square())
+            self.assertTrue(L.is_triu())
+            self.assertEqual(L.size1(), n_out)
         else:
-            self.assertTrue(y.is_square())
-            self.assertTrue(y.is_tril())
-            self.assertEqual(y.size1(), n_out)
+            self.assertTrue(L.is_square())
+            self.assertTrue(L.is_tril())
+            self.assertEqual(L.size1(), n_out)
+        self.assertTrue(ref.is_vector())
+        self.assertEqual(ref.numel(), n_out)
 
 
 class TestFeedforward(unittest.TestCase):
