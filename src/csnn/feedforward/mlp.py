@@ -39,7 +39,7 @@ class Mlp(Module[SymType]):
 
     Parameters
     ----------
-    hidden_features : sequence of ints
+    features : sequence of ints
         Number of features in each layer (input, hidden1, hidden2, ..., output).
     acts : type of activation function or a sequence of, optional
         The activation functions to be used for each layer. If a single activation
