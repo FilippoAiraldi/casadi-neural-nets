@@ -1,10 +1,11 @@
 import sys
 from collections.abc import Sequence
 from itertools import chain
-from typing import Literal, TypeVar
+from typing import Literal, Optional, TypeVar
 
 import casadi as cs
-from numpy import tril_indices, triu_indices
+from numpy import broadcast_to, tril_indices, triu_indices
+from numpy.typing import ArrayLike
 
 if sys.version_info >= (3, 10):
     from itertools import pairwise
@@ -65,9 +66,10 @@ class PsdNN(Module[SymType]):
         triangular, but does not support batched inputs.
     act : type of activation function, optional
         Class of the activation function. By default, `ReLU` is used.
-    eps : float, optional
-        Small value to add to the diagonal of the PSD matrix to ensure it is positive
-        definite. By default, `1e-2` is used. Only used in the `quadform` method.
+    eps : array-like, optional
+        Value to add to the PSD matrix, e.g., to ensure it is positive definite. Should
+        be broadcastable to the shape `(out_size, out_size)`. By default, an identity
+        matrix with `1e-4` is used. Only used in the `quadform` method.
 
     Raises
     ------
@@ -82,7 +84,7 @@ class PsdNN(Module[SymType]):
         out_size: int,
         out_shape: Literal["flat", "triu", "tril"],
         act: type[Module[SymType]] = ReLU,
-        eps: float = 1e-2,
+        eps: Optional[ArrayLike] = None,
     ) -> None:
         if len(hidden_features) < 1:
             raise ValueError("Psdnn must have at least one hidden layer")
@@ -93,7 +95,11 @@ class PsdNN(Module[SymType]):
         )
         self.mat_head = Linear(hidden_features[-1], (out_size * (out_size + 1)) // 2)
         self.ref_head = Linear(hidden_features[-1], out_size)
-        self._eps = eps * cs.DM_eye(out_size)
+        self._eps = (
+            1e-4 * cs.DM_eye(out_size)
+            if eps is None
+            else cs.DM(broadcast_to(eps, (out_size, out_size)))
+        )
         self._out_shape = out_shape
 
     def _forward(self, input: SymType) -> tuple[SymType, SymType]:
