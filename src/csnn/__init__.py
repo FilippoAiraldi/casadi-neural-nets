@@ -1,4 +1,4 @@
-__version__ = "1.0.6.post2"
+__version__ = "1.0.6.post3"
 
 __all__ = [
     "BatchNorm1d",
