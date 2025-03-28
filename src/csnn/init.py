@@ -141,6 +141,14 @@ def _init(
             yield "weight", None
             yield "bias", None
 
+    elif hasattr(module, "_custom_init") and callable("_custom_init"):
+        # Call the custom initialization method of the module
+        for name, weight_ in module._custom_init(np_random):
+            if weight_ is not None:
+                yield name, weight_
+            elif not skip_none:
+                yield name, None
+
 
 def init_parameters(
     module: "Module",
